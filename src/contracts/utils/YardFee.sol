@@ -10,7 +10,7 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 * @dev An adjustable fee contract guarded by a Timelock.
 */
 
-contract YardTax is IYardFee, Ownable2Step {
+contract YardFee is IYardFee, Ownable2Step {
     uint256 internal constant LOCK = 1 weeks;
 
     uint256 public swapFee;
@@ -58,7 +58,7 @@ contract YardTax is IYardFee, Ownable2Step {
     *           be used by the `check()` modifier.
     * @param _newFee New fee to be set after `LOCK` period.
     */
-    function queueFeeChange(uint256 _newFee) public onlyOwner {
+    function queueFeeChange(uint256 _newFee) public onlyOwner check {
         if (inProgress) revert("YARD: FEE_CHANGE_IN_QUEUE");
         inProgress = true;
         newFee = _newFee;
