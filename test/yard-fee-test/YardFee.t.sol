@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import "forge-std/Test.sol";
-import {YardFee} from "../src/contracts/utils/YardFee.sol";
+import {YardFee} from "../../src/contracts/utils/YardFee.sol";
 
 contract YardFeeTest is Test {
     YardFee public yardFee;
