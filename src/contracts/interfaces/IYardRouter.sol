@@ -71,8 +71,22 @@ interface IYardRouter {
         address to
     ) external returns (uint256[] memory _idsOut);
 
+    function takeRewards(
+        IERC721 nftA,
+        IERC721 nftB,
+        address to
+    ) external returns (uint256);
+
     function viewAllReserves(IERC721 nftA, IERC721 nftB)
         external
         view
         returns (uint256, uint256);
+
+    function getPair(IERC721 nftA, IERC721 nftB) external returns (address pair);
+
+    function getRewards(
+        IERC721 nftA,
+        IERC721 nftB,
+        address lpProvider
+    ) external view returns (uint256);
 }
