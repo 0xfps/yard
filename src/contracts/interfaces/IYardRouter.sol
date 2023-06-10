@@ -10,6 +10,24 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 */
 
 interface IYardRouter {
+    event BatchLiquidityAdded(IERC721 indexed nftIn, uint256[] idsIn);
+    event BatchLiquidityRemoved(IERC721 indexed nftOut, uint256[] idsOut);
+    event BatchSwapped(
+        IERC721 indexed nftIn,
+        uint256[] idsIn,
+        IERC721 indexed nftOut,
+        uint256[] idsOut
+    );
+    event LiquidityAdded(IERC721 indexed nftIn, uint256 indexed idIn);
+    event LiquidityRemoved(IERC721 indexed nftOut, uint256 indexed idOut);
+    event RewardClaimed(address indexed lpProvider, uint256 indexed reward);
+    event Swapped(
+        IERC721 indexed nftIn,
+        uint256 idIn,
+        IERC721 indexed nftOut,
+        uint256 idOut
+    );
+
     function addLiquidity(
         IERC721 nftIn,
         uint256 idIn,
