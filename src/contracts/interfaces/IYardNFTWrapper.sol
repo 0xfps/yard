@@ -12,16 +12,18 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 *           Override ERC-721 `transferFrom()`.
 *           Override ERC-721 `safeTransferFrom()`.
 *           Override ERC-721 `safeTransferFrom()`.
-*           NFTs cannot be transferred until they're `released()`.
-*           All functions here will be callable only by the Router.
+*           NFTs cannot be transferred until they're `release()`d.
+*           All functions here except `getOwner()` will be callable only by the `YardPair`.
 */
 
 interface IYardNFTWrapper {
     event Wrapped(uint256 indexed id, address indexed to);
     event Unwrapped(uint256 indexed id);
 
-    function getOwner(uint256 id) external view returns (address);
     function release(uint256 id) external;
-    function wrap(IERC721 nft, uint256 id, address to) external returns (uint256);
+    function wrap(address to) external returns (uint256);
     function unwrap(uint256 id) external;
+
+    function getOwner(uint256 id) external view returns (address);
+    function isReleased(uint256 id) external view returns (bool);
 }
