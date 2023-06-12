@@ -52,7 +52,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
     uint256 internal totalAmountClaimed;
 
     mapping(address provider => uint256 amount) internal amountClaimed;
-    mapping(address provider => uint256 time) internal lastLPRewardClaim;
+    mapping(address provider => uint256 time) internal lastLPTime;
 
     bool internal isLocked;
 
@@ -97,6 +97,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         onlyFactoryOrRouter
         returns (uint256 wId)
     {
+        if ((nftIn != nft0) && (nftIn != nft1)) revert("YARD: NON_POOL_NFT");
         if (nftIn.ownerOf(idIn) != address(this)) revert("YARD: NFT_NOT_RECEIVED");
         if (inPool[nftIn][idIn]) revert("YARD: NFT_IN_POOL");
         if (to == address(0)) revert("YARD: WRAP_TO_ZERO_ADDRESS");
@@ -119,12 +120,14 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
             indexes[nftIn][idIn] = ids1.length - 1;
         }
 
-        if (lastLPRewardClaim[from] == 0) lastLPRewardClaim[from] = block.timestamp;
+        lastLPTime[from] = block.timestamp;
 
         wId = yardWrapper.wrap(to);
 
         wrappedNFTs[wId] = nftIn;
         underlyingNFTs[wId][nftIn] = idIn;
+
+        emit LiquidityAdded(nftIn, idIn);
     }
 
     function removeLiquidity(
@@ -139,10 +142,11 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         onlyRouter
         returns (uint256 _idOut)
     {
-        if ((lastLPRewardClaim[from] + LIQUIDITY_PERIOD) > block.timestamp)
+        if ((nftOut != nft0) && (nftOut != nft1)) revert("YARD: NON_POOL_NFT");
+        if ((lastLPTime[from] + LIQUIDITY_PERIOD) > block.timestamp)
             revert("YARD: INVALID_LIQUIDITY_REMOVAL_PERIOD");
 
-        if (IERC721(_yardWrapper).ownerOf(wId) != from) revert("YARD: NOT_OWNER");
+        if (IERC721(_yardWrapper).ownerOf(wId) != from) revert("YARD: NOT_WRAPPED_NFT_OWNER");
 
         if (wrappedNFTs[wId] != nftOut) revert("YARD: WRAPPED_TOKEN_MISMATCH");
         if (underlyingNFTs[wId][nftOut] != idOut) revert("YARD: NOT_UNDERLYING_NFT");
@@ -161,34 +165,46 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         amountClaimed[from] += _reward;
         totalAmountClaimed += _reward;
 
-        lastLPRewardClaim[from] = block.timestamp;
-
         if (inPool[nftOut][idOut]) {
             _balancePoolReserves(nftOut, idOut);
 
             yardWrapper.unwrap(wId);
             IERC721(_yardWrapper).safeTransferFrom(address(this), to, idOut);
-            IERC20(_yardToken).transfer(to, _reward);
-        } else {
-            yardWrapper.release(wId);
-            IERC20(_yardToken).transfer(to, _reward);
-        }
+        } else yardWrapper.release(wId);
+
+        IERC20(_yardToken).transfer(to, _reward);
 
         _idOut = idOut;
+
+        emit LiquidityRemoved(nftOut, idOut);
+    }
+
+    function claimRewards(address lpProvider) external lock returns (uint256 reward) {
+        if (lpProvider == address(0)) revert("YARD: CLAIM_BY_ZERO_ADDRESS");
+        if (lastLPTime[lpProvider] == 0) revert("YARD: LIQUIDITY_NOT_PROVIDED");
+        if ((lastLPTime[lpProvider] + LIQUIDITY_PERIOD) > block.timestamp)
+            revert("YARD: INVALID_LIQUIDITY_REMOVAL_PERIOD");
+
+        reward = calculateRewards(lpProvider);
+        totalAmountClaimed += reward;
+
+        IERC20(_yardToken).transfer(lpProvider, reward);
+
+        emit RewardClaimed(lpProvider, reward);
     }
 
     function _balancePoolReserves(IERC721 nftOut, uint256 idOut) internal {
         inPool[nftOut][idOut] = false;
 
-        if (inArray[nftOut][idOut]) {
-            uint256 index = indexes[nftOut][idOut];
+        uint256 index = indexes[nftOut][idOut];
 
-            if (nftOut == nft0) ids0 = Math.popArray(ids0, index);
-            else ids1 = Math.popArray(ids1, index);
+        if (nftOut == nft0) ids0 = Math.popArray(ids0, index);
+        else ids1 = Math.popArray(ids1, index);
 
-            inArray[nftOut][idOut] = false;
-            (nftOut == nft0) ? --nft0Supply : --nft1Supply;
-        }
+        delete indexes[nftOut][idOut];
+        inArray[nftOut][idOut] = false;
+
+        (nftOut == nft0) ? --nft0Supply : --nft1Supply;
     }
 
     function _calculateRewards(address lpProvider, uint256 lpShares)
@@ -196,8 +212,11 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         view
         returns (uint256)
     {
-        uint256 numerator = lpShares * IERC20(_yardToken).balanceOf(address(this));
+        uint256 totalRewards = IERC20(_yardToken).balanceOf(address(this)) + totalAmountClaimed;
+        uint256 numerator = lpShares * totalRewards;
         uint256 denominator = nft0Supply + nft1Supply;
+
+        if ((numerator / denominator) < amountClaimed[lpProvider]) revert("YARD: VERY_LOW_PAYOUT");
 
         return (numerator / denominator) - amountClaimed[lpProvider];
     }
