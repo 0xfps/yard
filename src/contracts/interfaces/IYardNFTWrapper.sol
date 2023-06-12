@@ -24,6 +24,5 @@ interface IYardNFTWrapper {
     function wrap(address to) external returns (uint256);
     function unwrap(uint256 id) external;
 
-    function getOwner(uint256 id) external view returns (address);
     function isReleased(uint256 id) external view returns (bool);
 }
