@@ -178,6 +178,8 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
     }
 
     function _balancePoolReserves(IERC721 nftOut, uint256 idOut) internal {
+        inPool[nftOut][idOut] = false;
+
         if (inArray[nftOut][idOut]) {
             uint256 index = indexes[nftOut][idOut];
 
