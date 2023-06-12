@@ -30,7 +30,6 @@ interface IYardPair {
     function removeLiquidity(
         IERC721 nftOut,
         uint256 idOut,
-        IERC721 wNFT,
         uint256 wId,
         address from,
         address to

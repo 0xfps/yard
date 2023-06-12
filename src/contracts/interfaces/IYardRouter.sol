@@ -43,7 +43,6 @@ interface IYardRouter {
     function removeLiquidity(
         IERC721 nftOut,
         uint256 idOut,
-        IERC721 wNFT,
         uint256 wId,
         address to
     ) external returns (uint256 _idOut);
@@ -51,7 +50,6 @@ interface IYardRouter {
     function removeBatchLiquidity(
         IERC721 nftOut,
         uint256[] memory idsOut,
-        IERC721 wNFT,
         uint256[] memory wIds,
         address to
     ) external returns (uint256[] memory _idsOut);
