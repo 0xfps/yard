@@ -5,7 +5,8 @@ pragma solidity 0.8.20;
 * @title IYardToken
 * @author fps (@0xfps).
 * @dev Interface for interacting with the Yard ERC-20 Token.
-* @notice The YardToken is minted to specific addresses set by the factory.
+* @notice   The YardToken is minted to specific addresses set by the factory.
+*           The `mint()` function is only callable by the `YardPair` contract.
 */
 
 interface IYardToken {
