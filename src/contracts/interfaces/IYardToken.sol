@@ -10,6 +10,6 @@ pragma solidity 0.8.20;
 */
 
 interface IYardToken {
-    function mint(address to) external;
+    function mint() external;
     function burn(uint256 amount) external;
 }
