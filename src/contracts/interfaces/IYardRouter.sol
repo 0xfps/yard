@@ -29,18 +29,24 @@ interface IYardRouter {
     );
 
     function addLiquidity(
+        IERC721 nftA,
+        IERC721 nftB,
         IERC721 nftIn,
         uint256 idIn,
         address to
     ) external returns (uint256 wId);
 
     function addBatchLiquidity(
+        IERC721 nftA,
+        IERC721 nftB,
         IERC721 nftIn,
         uint256[] memory idsIn,
         address to
     ) external returns (uint256[] memory wId);
 
     function removeLiquidity(
+        IERC721 nftA,
+        IERC721 nftB,
         IERC721 nftOut,
         uint256 idOut,
         uint256 wId,
@@ -48,6 +54,8 @@ interface IYardRouter {
     ) external returns (uint256 _idOut);
 
     function removeBatchLiquidity(
+        IERC721 nftA,
+        IERC721 nftB,
         IERC721 nftOut,
         uint256[] memory idsOut,
         uint256[] memory wIds,
