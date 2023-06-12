@@ -179,6 +179,20 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         emit LiquidityRemoved(nftOut, idOut);
     }
 
+    function claimRewards(address lpProvider) external lock returns (uint256 reward) {
+        if (lpProvider == address(0)) revert("YARD: CLAIM_BY_ZERO_ADDRESS");
+        if (lastLPTime[lpProvider] == 0) revert("YARD: LIQUIDITY_NOT_PROVIDED");
+        if ((lastLPTime[lpProvider] + LIQUIDITY_PERIOD) > block.timestamp)
+            revert("YARD: INVALID_LIQUIDITY_REMOVAL_PERIOD");
+
+        reward = calculateRewards(lpProvider);
+        totalAmountClaimed += reward;
+
+        IERC20(_yardToken).transfer(lpProvider, reward);
+
+        emit RewardClaimed(lpProvider, reward);
+    }
+
     function _balancePoolReserves(IERC721 nftOut, uint256 idOut) internal {
         inPool[nftOut][idOut] = false;
 
@@ -198,8 +212,11 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         view
         returns (uint256)
     {
-        uint256 numerator = lpShares * IERC20(_yardToken).balanceOf(address(this));
+        uint256 totalRewards = IERC20(_yardToken).balanceOf(address(this)) + totalAmountClaimed;
+        uint256 numerator = lpShares * totalRewards;
         uint256 denominator = nft0Supply + nft1Supply;
+
+        if ((numerator / denominator) < amountClaimed[lpProvider]) revert("YARD: VERY_LOW_PAYOUT");
 
         return (numerator / denominator) - amountClaimed[lpProvider];
     }

@@ -44,11 +44,11 @@ interface IYardPair {
         address to
     ) external returns (uint256 _idOut);
 
+    function claimRewards(address lpProvider) external returns (uint256 reward);
+
     function getAllReserves() external view returns (uint256, uint256);
 
     function getReservesFor(IERC721 nft) external view returns (uint256, uint256[] memory);
 
-    function calculateRewards(address lpProvider) external returns (uint256);
-
-    function claimRewards(address lpProvider) external returns (uint256);
+    function calculateRewards(address lpProvider) external view returns (uint256);
 }
