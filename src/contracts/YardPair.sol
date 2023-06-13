@@ -33,6 +33,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
 
     uint256 internal nft0Supply;
     uint256 internal nft1Supply;
+    uint256 internal totalSupply;
 
     uint256[] internal ids0;
     uint256[] internal ids1;
@@ -51,7 +52,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
 
     uint256 internal totalAmountClaimed;
 
-    mapping(address provider => uint256 amount) internal amountClaimed;
+    mapping(address provider => uint256 amount) internal lpRewardAmountClaimed;
     mapping(address provider => uint256 time) internal lastLPTime;
 
     bool internal isLocked;
@@ -105,6 +106,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         /// @notice There can only be two NFTs.
         (nftIn == nft0) ? ++nft0Supply : ++nft1Supply;
 
+        ++totalSupply;
         inPool[nftIn][idIn] = true;
         depositors[nftIn][idIn] = from;
         ++deposited[from];
@@ -154,15 +156,15 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         if (to == address(0)) revert("YARD: SENDING_TO_ZERO_ADDRESS");
         if (yardWrapper.isReleased(wId)) revert("YARD: NFT_ALREADY_RELEASED");
 
-        uint256 _reward = _calculateRewards(from, 1);
+        uint256 _reward = _calculateLPRewards(1);
 
         --deposited[from];
+        --totalSupply;
 
         delete wrappedNFTs[wId];
         delete underlyingNFTs[wId][nftOut];
         delete depositors[nftOut][idOut];
 
-        amountClaimed[from] += _reward;
         totalAmountClaimed += _reward;
 
         if (inPool[nftOut][idOut]) {
@@ -214,11 +216,22 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
     {
         uint256 totalRewards = IERC20(_yardToken).balanceOf(address(this)) + totalAmountClaimed;
         uint256 numerator = lpShares * totalRewards;
-        uint256 denominator = nft0Supply + nft1Supply;
+        uint256 denominator = totalSupply;
 
-        if ((numerator / denominator) < amountClaimed[lpProvider]) revert("YARD: VERY_LOW_PAYOUT");
+        return (numerator / denominator) - lpRewardAmountClaimed[lpProvider];
+    }
 
-        return (numerator / denominator) - amountClaimed[lpProvider];
+    function _calculateLPRewards(uint256 lpShares)
+    private
+    view
+    returns (uint256)
+    {
+        uint256 totalRewards = IERC20(_yardToken).balanceOf(address(this));
+
+        uint256 numerator = lpShares * totalRewards;
+        uint256 denominator = totalSupply;
+
+        return (numerator / denominator);
     }
 
     function getAllReserves() public view returns (uint256, uint256) {
