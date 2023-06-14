@@ -71,20 +71,18 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
     * @dev  Minting the reward to pair.
     * @notice For every 1,000,000 tokens minted to a pair the reward (100 tokens) 
     *         is halved per pair until it get to 3 tokens per swap.
-    * @param _pair The pair is a owner of the pool or liquity provider
-    *               that receives the tokens.
     */
-    function mint(address _pair) public onlyRewardablePairs {
-        uint256 _amount = _mintingValue[_pair];
-        _currentValue[_pair] += _amount;
+    function mint() public onlyRewardablePairs {
+        uint256 _amount = _mintingValue[msg.sender];
+        _currentValue[msg.sender] += _amount;
 
-        if(_currentValue[_pair] >= _tokenRewardLimit && _mintingValue[_pair] > 3){
-            _mintingValue[_pair] /= 2;
-            _currentValue[_pair] = 0;
+        if(_currentValue[msg.sender] >= _tokenRewardLimit && _mintingValue[msg.sender] > 3){
+            _mintingValue[msg.sender] /= 2;
+            _currentValue[msg.sender] = 0;
         }
-        _mint(_pair, _amount);
+        _mint(msg.sender, _amount);
 
-        emit Mint(_pair, _amount);
+        emit Mint(msg.sender, _amount);
 
     }
 
