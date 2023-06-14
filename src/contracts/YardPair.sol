@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.20;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {IYardNFTWrapper} from "./interfaces/IYardNFTWrapper.sol";
@@ -21,14 +22,18 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
     address internal factory;
     address internal router;
 
-    IYardToken internal yardToken = IYardToken(address(0x01)); // @reminder Hard code this.
-    IYardNFTWrapper internal yardWrapper = IYardNFTWrapper(address(0x02)); // @reminder Hard code this.
+    address internal _yardToken = address(0x01); // @reminder Hard code this.
+    address internal _yardWrapper = address(0x02); // @reminder Hard code this.
+
+    IYardToken internal yardToken = IYardToken(_yardToken);
+    IYardNFTWrapper internal yardWrapper = IYardNFTWrapper(_yardWrapper);
 
     IERC721 internal nft0;
     IERC721 internal nft1;
 
     uint256 internal nft0Supply;
     uint256 internal nft1Supply;
+    uint256 internal totalSupply;
 
     uint256[] internal ids0;
     uint256[] internal ids1;
@@ -47,8 +52,17 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
 
     uint256 internal totalAmountClaimed;
 
-    mapping(address provider => uint256 amount) internal amountClaimed;
-    mapping(address provider => uint256 time) internal lastLPRewardClaim;
+    mapping(address provider => uint256 amount) internal lpRewardAmountClaimed;
+    mapping(address provider => uint256 time) internal lastLPTime;
+
+    bool internal isLocked;
+
+    modifier lock() {
+        if (isLocked) revert("YARD: TRANSACTION_LOCKED");
+        isLocked = true;
+        _;
+        isLocked = false;
+    }
 
     modifier onlyFactoryOrRouter() {
         if (
@@ -84,6 +98,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         onlyFactoryOrRouter
         returns (uint256 wId)
     {
+        if ((nftIn != nft0) && (nftIn != nft1)) revert("YARD: NON_POOL_NFT");
         if (nftIn.ownerOf(idIn) != address(this)) revert("YARD: NFT_NOT_RECEIVED");
         if (inPool[nftIn][idIn]) revert("YARD: NFT_IN_POOL");
         if (to == address(0)) revert("YARD: WRAP_TO_ZERO_ADDRESS");
@@ -91,6 +106,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         /// @notice There can only be two NFTs.
         (nftIn == nft0) ? ++nft0Supply : ++nft1Supply;
 
+        ++totalSupply;
         inPool[nftIn][idIn] = true;
         depositors[nftIn][idIn] = from;
         ++deposited[from];
@@ -106,25 +122,116 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
             indexes[nftIn][idIn] = ids1.length - 1;
         }
 
-        if (lastLPRewardClaim[from] == 0) lastLPRewardClaim[from] = block.timestamp;
+        lastLPTime[from] = block.timestamp;
 
         wId = yardWrapper.wrap(to);
 
         wrappedNFTs[wId] = nftIn;
         underlyingNFTs[wId][nftIn] = idIn;
+
+        emit LiquidityAdded(nftIn, idIn);
     }
 
-    /// @dev OpenZeppelin requirement for NFT receptions.
-    /// @return bytes4  bytes4(keccak256(
-    ///                     onERC721Received(address,address,uint256,bytes)
-    ///                 )) => 0x150b7a02.
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external pure returns (bytes4) {
-        return 0x150b7a02;
+    function removeLiquidity(
+        IERC721 nftOut,
+        uint256 idOut,
+        uint256 wId,
+        address from,
+        address to
+    )
+        external
+        lock
+        onlyRouter
+        returns (uint256 _idOut)
+    {
+        if ((nftOut != nft0) && (nftOut != nft1)) revert("YARD: NON_POOL_NFT");
+        if ((lastLPTime[from] + LIQUIDITY_PERIOD) > block.timestamp)
+            revert("YARD: INVALID_LIQUIDITY_REMOVAL_PERIOD");
+
+        if (IERC721(_yardWrapper).ownerOf(wId) != from) revert("YARD: NOT_WRAPPED_NFT_OWNER");
+
+        if (wrappedNFTs[wId] != nftOut) revert("YARD: WRAPPED_TOKEN_MISMATCH");
+        if (underlyingNFTs[wId][nftOut] != idOut) revert("YARD: NOT_UNDERLYING_NFT");
+        if (depositors[nftOut][idOut] != from) revert("YARD: NOT_DEPOSITED_NFT");
+        if (to == address(0)) revert("YARD: SENDING_TO_ZERO_ADDRESS");
+        if (yardWrapper.isReleased(wId)) revert("YARD: NFT_ALREADY_RELEASED");
+
+        uint256 _reward = _calculateLPRewards(1);
+
+        --deposited[from];
+        --totalSupply;
+
+        delete wrappedNFTs[wId];
+        delete underlyingNFTs[wId][nftOut];
+        delete depositors[nftOut][idOut];
+
+        totalAmountClaimed += _reward;
+
+        if (inPool[nftOut][idOut]) {
+            _balancePoolReserves(nftOut, idOut);
+
+            yardWrapper.unwrap(wId);
+            IERC721(_yardWrapper).safeTransferFrom(address(this), to, idOut);
+        } else yardWrapper.release(wId);
+
+        IERC20(_yardToken).transfer(to, _reward);
+
+        _idOut = idOut;
+
+        emit LiquidityRemoved(nftOut, idOut);
+    }
+
+    function claimRewards(address lpProvider) external lock returns (uint256 reward) {
+        if (lpProvider == address(0)) revert("YARD: CLAIM_BY_ZERO_ADDRESS");
+        if (lastLPTime[lpProvider] == 0) revert("YARD: LIQUIDITY_NOT_PROVIDED");
+        if ((lastLPTime[lpProvider] + LIQUIDITY_PERIOD) > block.timestamp)
+            revert("YARD: INVALID_LIQUIDITY_REMOVAL_PERIOD");
+
+        reward = calculateRewards(lpProvider);
+        totalAmountClaimed += reward;
+
+        IERC20(_yardToken).transfer(lpProvider, reward);
+
+        emit RewardClaimed(lpProvider, reward);
+    }
+
+    function _balancePoolReserves(IERC721 nftOut, uint256 idOut) internal {
+        inPool[nftOut][idOut] = false;
+
+        uint256 index = indexes[nftOut][idOut];
+
+        if (nftOut == nft0) ids0 = Math.popArray(ids0, index);
+        else ids1 = Math.popArray(ids1, index);
+
+        delete indexes[nftOut][idOut];
+        inArray[nftOut][idOut] = false;
+
+        (nftOut == nft0) ? --nft0Supply : --nft1Supply;
+    }
+
+    function _calculateRewards(address lpProvider, uint256 lpShares)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 totalRewards = IERC20(_yardToken).balanceOf(address(this)) + totalAmountClaimed;
+        uint256 numerator = lpShares * totalRewards;
+        uint256 denominator = totalSupply;
+
+        return (numerator / denominator) - lpRewardAmountClaimed[lpProvider];
+    }
+
+    function _calculateLPRewards(uint256 lpShares)
+    private
+    view
+    returns (uint256)
+    {
+        uint256 totalRewards = IERC20(_yardToken).balanceOf(address(this));
+
+        uint256 numerator = lpShares * totalRewards;
+        uint256 denominator = totalSupply;
+
+        return (numerator / denominator);
     }
 
     function getAllReserves() public view returns (uint256, uint256) {
@@ -148,5 +255,22 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         }
 
         return (supply, supplies);
+    }
+
+    function calculateRewards(address lpProvider) public view returns (uint256) {
+        return _calculateRewards(lpProvider, deposited[lpProvider]);
+    }
+
+    /// @dev OpenZeppelin requirement for NFT receptions.
+    /// @return bytes4  bytes4(keccak256(
+    ///                     onERC721Received(address,address,uint256,bytes)
+    ///                 )) => 0x150b7a02.
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure returns (bytes4) {
+        return 0x150b7a02;
     }
 }
