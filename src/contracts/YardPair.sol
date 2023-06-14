@@ -188,6 +188,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
             revert("YARD: INVALID_LIQUIDITY_REMOVAL_PERIOD");
 
         reward = calculateRewards(lpProvider);
+        lpRewardAmountClaimed[lpProvider] += reward;
         totalAmountClaimed += reward;
 
         IERC20(_yardToken).transfer(lpProvider, reward);
