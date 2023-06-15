@@ -45,7 +45,7 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
         _;
     }
 
-    constructor () ERC20("YARD TOKEN", "$YARD"){}
+    constructor() ERC20("YARD TOKEN", "$YARD") {}
 
     /**
     * @dev  Setting a factory callable by only the owner.
@@ -85,8 +85,7 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
 
     /**
      * @dev Burns token of a pair.
-     * @notice The function burns the token rewards obtained by a owner
-     *         of the pool or liquity provider.
+     * @notice The function burns the holder's token.
      * @param _amount This is the amount of token to be burned.
      */
     function burn(uint256 _amount) public {
