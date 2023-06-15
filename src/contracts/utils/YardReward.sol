@@ -25,8 +25,8 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
     /// @dev  Emits the pair address.
     /// @param _pair `pair`.
     event AddPair(address indexed _pair);
-    /// @dev  Emits when a token is been reward to pool owner 
-    ///       or liquidity provider.
+    /// @dev  Emits when a token is minted to pool owner 
+    ///       or liquidity provider as reward.
     /// @param _amount `amount`. 
     event Mint(address indexed _pair, uint256 _amount);
     /// @dev  Emits the pair and amount.
@@ -63,7 +63,6 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
         _pairsRewardStatus[_pair] = true;
         if  (_mintingValue[_pair] == 0)
             _mintingValue[_pair] = _tokenRewardPerSwap;
-
         emit AddPair(_pair);
     }
 
@@ -76,14 +75,12 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
         uint256 _amount = _mintingValue[msg.sender];
         _currentValue[msg.sender] += _amount;
 
-        if(_currentValue[msg.sender] >= _tokenRewardLimit && _mintingValue[msg.sender] > 3){
+        if(_currentValue[msg.sender] >= _tokenRewardLimit && _mintingValue[msg.sender] != 3){
             _mintingValue[msg.sender] /= 2;
             _currentValue[msg.sender] = 0;
         }
         _mint(msg.sender, _amount);
-
         emit Mint(msg.sender, _amount);
-
     }
 
     /**
@@ -93,10 +90,7 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
      * @param _amount This is the amount of token to be burned.
      */
     function burn(uint256 _amount) public {
-        _currentValue[msg.sender] -= _amount;
         _burn(msg.sender, _amount);
-
         emit Burn(msg.sender, _amount);
-
     }
 }
