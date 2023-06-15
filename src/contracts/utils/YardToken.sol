@@ -12,7 +12,7 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 * @dev A Yard token reward contract.
 */
 
-contract YardReward is IYardToken, ERC20, Ownable2Step {
+contract YardToken is IYardToken, ERC20, Ownable2Step {
     uint24 internal _tokenRewardLimit = 1000000;
     uint8 internal _tokenRewardPerSwap = 100;
 
