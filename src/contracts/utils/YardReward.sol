@@ -7,7 +7,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /**
-* @title Uchechukwu Anthony Nwachukwu
+* @title YardReward
 * @author sagetony224 (@sagetony224).
 * @dev A Yard token reward contract.
 */
@@ -35,24 +35,24 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
 
     modifier onlyFactory() {
         if  (factory != msg.sender)
-            revert("YARD: NO_PERMISSION");
+            revert("YARD: ONLY_FACTORY");
         _;
     }
 
     modifier onlyRewardablePairs() {
         if  (!_pairsRewardStatus[msg.sender])
-            revert("YARD: NO_PERMISSION");
+            revert("YARD: ONLY_PAIR");
         _;
     }
 
-    constructor () ERC20("YARDTOKEN", "YARD"){}
+    constructor () ERC20("YARD TOKEN", "$YARD"){}
 
     /**
     * @dev  Setting a factory callable by only the owner.
-    * @param _factory The address will be set to factory.
+    * @param _factory Sets factory 
     */
     function setFactory(address _factory) public onlyOwner {
-        factory = _factory;
+        if (factory == address(0)) factory = _factory;
     }
 
     /**
@@ -85,8 +85,8 @@ contract YardReward is IYardToken, ERC20, Ownable2Step {
 
     /**
      * @dev Burns token of a pair.
-     * @notice The function burns the token rewards obtained by a owners 
-     *         of the pool and liquity providers.
+     * @notice The function burns the token rewards obtained by a owner
+     *         of the pool or liquity provider.
      * @param _amount This is the amount of token to be burned.
      */
     function burn(uint256 _amount) public {
