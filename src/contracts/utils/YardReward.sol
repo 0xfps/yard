@@ -7,7 +7,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /**
-* @title YardReward
+* @title YardToken
 * @author sagetony224 (@sagetony224).
 * @dev A Yard token reward contract.
 */
