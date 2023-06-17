@@ -16,7 +16,7 @@ import {Math} from "./libraries/Math.sol";
 * @dev YardPair contract.
 */
 
-abstract contract YardPair is IERC721Receiver, IYardPair {
+contract YardPair is IERC721Receiver, IYardPair {
     uint64 internal constant LIQUIDITY_PERIOD = 30 days;
     
     // Goerli addresses, change to taste before deployment. 
@@ -172,7 +172,6 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         uint256 idIn,
         IERC721 nftOut,
         uint256 idOut,
-        address from,
         address to
     )
         external
@@ -187,15 +186,14 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_NOT_IN_POOL");
         if (to == address(0)) revert("YARD: ZERO_ADDRESS");
 
-        from;
-        _idOut = idOut;
-
         _balancePoolReserves(nftOut, idOut);
         _updatePoolReserves(nftIn, idIn);
 
         IERC721(nftOut).safeTransferFrom(address(this), to, idOut);
 
         yardToken.mint();
+
+        _idOut = idOut;
 
         emit Swapped(
             nftIn,
