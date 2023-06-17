@@ -182,6 +182,45 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         emit LiquidityRemoved(nftOut, idOut);
     }
 
+    function swap(
+        IERC721 nftIn,
+        uint256 idIn,
+        IERC721 nftOut,
+        uint256 idOut,
+        address from,
+        address to
+    )
+        external
+        lock
+        onlyRouter
+        returns (uint256 _idOut)
+    {
+        if (IERC721(nftIn).ownerOf(idIn) != address(this)) revert("YARD: NFT_NOT_RECEIVED");
+        (uint256 reserve, ) = getReservesFor(nftOut);
+        if (reserve == 0) revert("YARD: ZERO_LIQUIDITY");
+        if (!inPool[nftOut][idOut]) revert("YARD: NFT_NOT_IN_POOL");
+        if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_NOT_IN_POOL");
+        if (to == address(0)) revert("YARD: ZERO_ADDRESS");
+
+        from;
+        _idOut = idOut;
+
+        _balancePoolReserves(nftOut, idOut);
+
+        /// @notice Removal of to and re-put into the pool changes the
+        ///         depositors[nftIn][idIn] and is a flaw, should be fixed.
+        IERC721(nftOut).safeTransferFrom(address(this), to, idOut);
+
+        yardToken.mint();
+
+        emit Swapped(
+            nftIn,
+            idIn,
+            nftOut,
+            idOut
+        );
+    }
+
     function claimRewards(address lpProvider) external lock returns (uint256 reward) {
         if (lpProvider == address(0)) revert("YARD: CLAIM_BY_ZERO_ADDRESS");
         if (lastLPTime[lpProvider] == 0) revert("YARD: LIQUIDITY_NOT_PROVIDED");
@@ -195,45 +234,6 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         IERC20(YARD_TOKEN).transfer(lpProvider, reward);
 
         emit RewardClaimed(lpProvider, reward);
-    }
-
-    function _balancePoolReserves(IERC721 nftOut, uint256 idOut) internal {
-        inPool[nftOut][idOut] = false;
-
-        uint256 index = indexes[nftOut][idOut];
-
-        if (nftOut == nft0) ids0 = Math.popArray(ids0, index);
-        else ids1 = Math.popArray(ids1, index);
-
-        delete indexes[nftOut][idOut];
-        inArray[nftOut][idOut] = false;
-
-        (nftOut == nft0) ? --nft0Supply : --nft1Supply;
-    }
-
-    function _calculateRewards(address lpProvider, uint256 lpShares)
-        internal
-        view
-        returns (uint256)
-    {
-        uint256 totalRewards = IERC20(YARD_TOKEN).balanceOf(address(this)) + totalAmountClaimed;
-        uint256 numerator = lpShares * totalRewards;
-        uint256 denominator = totalSupply;
-
-        return (numerator / denominator) - lpRewardAmountClaimed[lpProvider];
-    }
-
-    function _calculateLPRewards(uint256 lpShares)
-    private
-    view
-    returns (uint256)
-    {
-        uint256 totalRewards = IERC20(YARD_TOKEN).balanceOf(address(this));
-
-        uint256 numerator = lpShares * totalRewards;
-        uint256 denominator = totalSupply;
-
-        return (numerator / denominator);
     }
 
     function getAllReserves() public view returns (uint256, uint256) {
@@ -274,5 +274,44 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         bytes calldata
     ) external pure returns (bytes4) {
         return 0x150b7a02;
+    }
+
+    function _balancePoolReserves(IERC721 nftOut, uint256 idOut) internal {
+        inPool[nftOut][idOut] = false;
+
+        uint256 index = indexes[nftOut][idOut];
+
+        if (nftOut == nft0) ids0 = Math.popArray(ids0, index);
+        else ids1 = Math.popArray(ids1, index);
+
+        delete indexes[nftOut][idOut];
+        inArray[nftOut][idOut] = false;
+
+        (nftOut == nft0) ? --nft0Supply : --nft1Supply;
+    }
+
+    function _calculateRewards(address lpProvider, uint256 lpShares)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 totalRewards = IERC20(YARD_TOKEN).balanceOf(address(this)) + totalAmountClaimed;
+        uint256 numerator = lpShares * totalRewards;
+        uint256 denominator = totalSupply;
+
+        return (numerator / denominator) - lpRewardAmountClaimed[lpProvider];
+    }
+
+    function _calculateLPRewards(uint256 lpShares)
+    private
+    view
+    returns (uint256)
+    {
+        uint256 totalRewards = IERC20(YARD_TOKEN).balanceOf(address(this));
+
+        uint256 numerator = lpShares * totalRewards;
+        uint256 denominator = totalSupply;
+
+        return (numerator / denominator);
     }
 }
