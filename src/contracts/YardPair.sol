@@ -104,7 +104,6 @@ contract YardPair is IERC721Receiver, IYardPair {
         if (to == address(0)) revert("YARD: WRAP_TO_ZERO_ADDRESS");
 
         ++totalSupply;
-        inPool[nftIn][idIn] = true;
         ++deposited[from];
         ++totalDeposited[from];
 
@@ -180,7 +179,9 @@ contract YardPair is IERC721Receiver, IYardPair {
         returns (uint256 _idOut)
     {
         if (IERC721(nftIn).ownerOf(idIn) != address(this)) revert("YARD: NFT_NOT_RECEIVED");
+
         (uint256 reserve, ) = getReservesFor(nftOut);
+
         if (reserve == 0) revert("YARD: ZERO_LIQUIDITY");
         if (!inPool[nftOut][idOut]) revert("YARD: NFT_NOT_IN_POOL");
         if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_NOT_IN_POOL");
@@ -277,6 +278,7 @@ contract YardPair is IERC721Receiver, IYardPair {
         (nftIn == nft0) ? ++nft0Supply : ++nft1Supply;
 
         inArray[nftIn][idIn] = true;
+        inPool[nftIn][idIn] = true;
 
         if (nftIn == nft0) {
             ids0.push(idIn);
