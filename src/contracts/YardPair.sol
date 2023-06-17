@@ -47,7 +47,6 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
 
     mapping(IERC721 nft => mapping(uint256 id => bool inPool)) internal inPool;
 
-    mapping(IERC721 nft => mapping(uint256 id => address provider)) internal depositors;
     mapping(address provider => uint256 count) internal deposited;
     mapping(address provider => uint256 count) internal totalDeposited;
 
@@ -104,24 +103,12 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         if (inPool[nftIn][idIn]) revert("YARD: NFT_IN_POOL");
         if (to == address(0)) revert("YARD: WRAP_TO_ZERO_ADDRESS");
 
-        /// @notice There can only be two NFTs.
-        (nftIn == nft0) ? ++nft0Supply : ++nft1Supply;
-
         ++totalSupply;
         inPool[nftIn][idIn] = true;
-        depositors[nftIn][idIn] = from;
         ++deposited[from];
         ++totalDeposited[from];
 
-        inArray[nftIn][idIn] = true;
-
-        if (nftIn == nft0) {
-            ids0.push(idIn);
-            indexes[nftIn][idIn] = ids0.length - 1;
-        } else {
-            ids1.push(idIn);
-            indexes[nftIn][idIn] = ids1.length - 1;
-        }
+        _updatePoolReserves(nftIn, idIn);
 
         lastLPTime[from] = block.timestamp;
 
@@ -153,7 +140,6 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
 
         if (wrappedNFTs[wId] != nftOut) revert("YARD: WRAPPED_TOKEN_MISMATCH");
         if (underlyingNFTs[wId][nftOut] != idOut) revert("YARD: NOT_UNDERLYING_NFT");
-        if (depositors[nftOut][idOut] != from) revert("YARD: NOT_DEPOSITED_NFT");
         if (to == address(0)) revert("YARD: SENDING_TO_ZERO_ADDRESS");
         if (yardWrapper.isReleased(wId)) revert("YARD: NFT_ALREADY_RELEASED");
 
@@ -164,7 +150,6 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
 
         delete wrappedNFTs[wId];
         delete underlyingNFTs[wId][nftOut];
-        delete depositors[nftOut][idOut];
 
         totalAmountClaimed += _reward;
 
@@ -206,9 +191,8 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         _idOut = idOut;
 
         _balancePoolReserves(nftOut, idOut);
+        _updatePoolReserves(nftIn, idIn);
 
-        /// @notice Removal of nft to `to` and re-put into the pool changes the
-        ///         depositors[nftIn][idIn] and is a flaw, should be fixed.
         IERC721(nftOut).safeTransferFrom(address(this), to, idOut);
 
         yardToken.mint();
@@ -288,6 +272,21 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         inArray[nftOut][idOut] = false;
 
         (nftOut == nft0) ? --nft0Supply : --nft1Supply;
+    }
+
+    function _updatePoolReserves(IERC721 nftIn, uint256 idIn) internal {
+        /// @notice There can only be two NFTs.
+        (nftIn == nft0) ? ++nft0Supply : ++nft1Supply;
+
+        inArray[nftIn][idIn] = true;
+
+        if (nftIn == nft0) {
+            ids0.push(idIn);
+            indexes[nftIn][idIn] = ids0.length - 1;
+        } else {
+            ids1.push(idIn);
+            indexes[nftIn][idIn] = ids1.length - 1;
+        }
     }
 
     function _calculateRewards(address lpProvider, uint256 lpShares)
