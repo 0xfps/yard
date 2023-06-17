@@ -18,15 +18,16 @@ import {Math} from "./libraries/Math.sol";
 
 abstract contract YardPair is IERC721Receiver, IYardPair {
     uint64 internal constant LIQUIDITY_PERIOD = 30 days;
+    
+    // Goerli addresses, change to taste before deployment. 
+    address internal constant YARD_TOKEN = 0x9bC25b28A4144f92b9fa7271dD722Ad4eAB51a25;
+    address internal constant YARD_WRAPPER = address(0x02); // @reminder Hard code this.
 
     address internal factory;
     address internal router;
 
-    address internal _yardToken = address(0x01); // @reminder Hard code this.
-    address internal _yardWrapper = address(0x02); // @reminder Hard code this.
-
-    IYardToken internal yardToken = IYardToken(_yardToken);
-    IYardNFTWrapper internal yardWrapper = IYardNFTWrapper(_yardWrapper);
+    IYardToken internal yardToken = IYardToken(YARD_TOKEN);
+    IYardNFTWrapper internal yardWrapper = IYardNFTWrapper(YARD_WRAPPER);
 
     IERC721 internal nft0;
     IERC721 internal nft1;
@@ -148,7 +149,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         if ((lastLPTime[from] + LIQUIDITY_PERIOD) > block.timestamp)
             revert("YARD: INVALID_LIQUIDITY_REMOVAL_PERIOD");
 
-        if (IERC721(_yardWrapper).ownerOf(wId) != from) revert("YARD: NOT_WRAPPED_NFT_OWNER");
+        if (IERC721(YARD_WRAPPER).ownerOf(wId) != from) revert("YARD: NOT_WRAPPED_NFT_OWNER");
 
         if (wrappedNFTs[wId] != nftOut) revert("YARD: WRAPPED_TOKEN_MISMATCH");
         if (underlyingNFTs[wId][nftOut] != idOut) revert("YARD: NOT_UNDERLYING_NFT");
@@ -171,10 +172,10 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
             _balancePoolReserves(nftOut, idOut);
 
             yardWrapper.unwrap(wId);
-            IERC721(_yardWrapper).safeTransferFrom(address(this), to, idOut);
+            IERC721(YARD_WRAPPER).safeTransferFrom(address(this), to, idOut);
         } else yardWrapper.release(wId);
 
-        IERC20(_yardToken).transfer(to, _reward);
+        IERC20(YARD_TOKEN).transfer(to, _reward);
 
         _idOut = idOut;
 
@@ -191,7 +192,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         lpRewardAmountClaimed[lpProvider] += reward;
         totalAmountClaimed += reward;
 
-        IERC20(_yardToken).transfer(lpProvider, reward);
+        IERC20(YARD_TOKEN).transfer(lpProvider, reward);
 
         emit RewardClaimed(lpProvider, reward);
     }
@@ -215,7 +216,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         view
         returns (uint256)
     {
-        uint256 totalRewards = IERC20(_yardToken).balanceOf(address(this)) + totalAmountClaimed;
+        uint256 totalRewards = IERC20(YARD_TOKEN).balanceOf(address(this)) + totalAmountClaimed;
         uint256 numerator = lpShares * totalRewards;
         uint256 denominator = totalSupply;
 
@@ -227,7 +228,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
     view
     returns (uint256)
     {
-        uint256 totalRewards = IERC20(_yardToken).balanceOf(address(this));
+        uint256 totalRewards = IERC20(YARD_TOKEN).balanceOf(address(this));
 
         uint256 numerator = lpShares * totalRewards;
         uint256 denominator = totalSupply;
