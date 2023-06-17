@@ -207,7 +207,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
 
         _balancePoolReserves(nftOut, idOut);
 
-        /// @notice Removal of to and re-put into the pool changes the
+        /// @notice Removal of nft to `to` and re-put into the pool changes the
         ///         depositors[nftIn][idIn] and is a flaw, should be fixed.
         IERC721(nftOut).safeTransferFrom(address(this), to, idOut);
 
