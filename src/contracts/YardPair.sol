@@ -16,7 +16,7 @@ import {Math} from "./libraries/Math.sol";
 * @dev YardPair contract.
 */
 
-abstract contract YardPair is IERC721Receiver, IYardPair {
+contract YardPair is IERC721Receiver, IYardPair {
     uint64 internal constant LIQUIDITY_PERIOD = 30 days;
     
     // Goerli addresses, change to taste before deployment. 
@@ -104,7 +104,6 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         if (to == address(0)) revert("YARD: WRAP_TO_ZERO_ADDRESS");
 
         ++totalSupply;
-        inPool[nftIn][idIn] = true;
         ++deposited[from];
         ++totalDeposited[from];
 
@@ -172,7 +171,6 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         uint256 idIn,
         IERC721 nftOut,
         uint256 idOut,
-        address from,
         address to
     )
         external
@@ -181,14 +179,13 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         returns (uint256 _idOut)
     {
         if (IERC721(nftIn).ownerOf(idIn) != address(this)) revert("YARD: NFT_NOT_RECEIVED");
+
         (uint256 reserve, ) = getReservesFor(nftOut);
+
         if (reserve == 0) revert("YARD: ZERO_LIQUIDITY");
         if (!inPool[nftOut][idOut]) revert("YARD: NFT_NOT_IN_POOL");
         if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_NOT_IN_POOL");
         if (to == address(0)) revert("YARD: ZERO_ADDRESS");
-
-        from;
-        _idOut = idOut;
 
         _balancePoolReserves(nftOut, idOut);
         _updatePoolReserves(nftIn, idIn);
@@ -196,6 +193,8 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         IERC721(nftOut).safeTransferFrom(address(this), to, idOut);
 
         yardToken.mint();
+
+        _idOut = idOut;
 
         emit Swapped(
             nftIn,
@@ -279,6 +278,7 @@ abstract contract YardPair is IERC721Receiver, IYardPair {
         (nftIn == nft0) ? ++nft0Supply : ++nft1Supply;
 
         inArray[nftIn][idIn] = true;
+        inPool[nftIn][idIn] = true;
 
         if (nftIn == nft0) {
             ids0.push(idIn);
