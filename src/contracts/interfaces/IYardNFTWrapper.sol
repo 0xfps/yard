@@ -9,6 +9,9 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 * @dev Interface for interacting with Yard NFT Wrapper.
 * @notice   The Yard NFT Wrapper has a singular function of wrapping NFTs
 *           by keeping their URIs intact and sending that to specific addresses.
+*           Override ERC-721 `approve()`.
+*           Override ERc-721 `setApprovalForAll()`.
+*           Override ERC-721 `tokenURI().`
 *           Override ERC-721 `transferFrom()`.
 *           Override ERC-721 `safeTransferFrom()`.
 *           Override ERC-721 `safeTransferFrom()`.
