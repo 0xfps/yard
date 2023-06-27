@@ -24,7 +24,7 @@ interface IYardNFTWrapper {
     event Unwrapped(uint256 indexed id);
 
     function release(uint256 id) external;
-    function wrap(address to) external returns (uint256);
+    function wrap(IERC721 nft, uint256 id, address to) external returns (uint256);
     function unwrap(uint256 id) external;
 
     function isReleased(uint256 id) external view returns (bool);
