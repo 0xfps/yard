@@ -111,7 +111,7 @@ contract YardPair is IERC721Receiver, IYardPair {
 
         lastLPTime[from] = block.timestamp;
 
-        wId = yardWrapper.wrap(to);
+        wId = yardWrapper.wrap(nftIn, idIn, to);
 
         wrappedNFTs[wId] = nftIn;
         underlyingNFTs[wId][nftIn] = idIn;
