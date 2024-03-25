@@ -264,8 +264,19 @@ contract YardPair is IERC721Receiver, IYardPair {
 
         uint256 index = indexes[nftOut][idOut];
 
-        if (nftOut == nft0) ids0 = Math.popArray(ids0, index);
-        else ids1 = Math.popArray(ids1, index);
+        if (nftOut == nft0) {
+            uint256 lastNftIdInArray = ids0[ids0.length - 1];
+            ids0 = Math.popArray(ids0, index);
+            // Reset the index of the initial last array
+            // element to the index of the deleted element.
+            indexes[nft0][lastNftIdInArray] = index;
+        } else {
+            uint256 lastNftIdInArray = ids1[ids1.length - 1];
+            ids1 = Math.popArray(ids1, index);
+            // Reset the index of the initial last array
+            // element to the index of the deleted element.
+            indexes[nft1][lastNftIdInArray] = index;
+        }
 
         delete indexes[nftOut][idOut];
         inArray[nftOut][idOut] = false;
