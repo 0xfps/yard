@@ -18,7 +18,7 @@ import {Math} from "./libraries/Math.sol";
 
 contract YardPair is IERC721Receiver, IYardPair {
     uint64 internal constant LIQUIDITY_PERIOD = 30 days;
-    
+
     // Goerli addresses, change to taste before deployment. 
     address internal constant YARD_TOKEN = 0x9bC25b28A4144f92b9fa7271dD722Ad4eAB51a25;
     address internal constant YARD_WRAPPER = address(0x02); // @reminder Hard code this.

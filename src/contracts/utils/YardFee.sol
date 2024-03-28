@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.20;
+pragma solidity ^0.8.0;
 
 import {IYardFee} from "../interfaces/IYardFee.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
