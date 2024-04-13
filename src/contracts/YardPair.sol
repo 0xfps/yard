@@ -21,6 +21,7 @@ contract YardPair is IERC721Receiver, IYardPair {
     
     uint64 internal constant LIQUIDITY_PERIOD = 30 days;
     uint32 internal immutable FEE;
+    address internal immutable OWNER;
 
     address internal factory;
     address internal router;
@@ -83,16 +84,17 @@ contract YardPair is IERC721Receiver, IYardPair {
         IERC721 nftB,
         address _router,
         address _yardWrapper,
-        uint32 _fee,
-        address _feeToken
+        address _owner,
+        address _feeToken,
+        uint32 _fee
     ) {
-        // @reminder Assert nftA != nftB in YardFactory.
         factory = msg.sender;
         router = _router;
         (nft0, nft1) = (nftA > nftB) ? (nftA, nftB) : (nftB, nftA);
         yardWrapper = IYardNFTWrapper(_yardWrapper);
         FEE = _fee;
         feeToken = IERC20(_feeToken);
+        OWNER = _owner;
     }
 
     /// @notice Router sends NFTs to Pair, Pair validates ownership and
