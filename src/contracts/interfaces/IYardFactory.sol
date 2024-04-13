@@ -10,17 +10,14 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 */
 
 interface IYardFactory {
-    event PairCreated(IERC721 nftA, IERC721 nftB, address indexed pair, address creator);
+    event PairCreated(IERC721 nftA, IERC721 nftB, address indexed pair);
 
     function createPair(
         IERC721 nftA,
         uint256[] memory idsA,
         IERC721 nftB,
-        uint256[] memory idsB,
-        address creator,
-        uint32 fee
+        uint256[] memory idsB
     ) external returns (address pair);
 
-    function getPair(address nftA, address nftB) external returns (address pair);
-    function getNFTsAtPair(address pair) external view returns (address, address);
+    function getPair(IERC721 nftA, IERC721 nftB) external returns (address pair);
 }
