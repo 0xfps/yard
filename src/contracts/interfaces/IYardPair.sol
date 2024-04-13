@@ -40,6 +40,7 @@ interface IYardPair {
         uint256 idIn,
         IERC721 nftOut,
         uint256 idOut,
+        address from,
         address to
     ) external returns (uint256 _idOut);
 
