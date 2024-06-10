@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import {IYardNFTWrapper} from "./interfaces/IYardNFTWrapper.sol";
-import {IYardPair} from "./interfaces/IYardPair.sol";
-import {IYardToken} from "./interfaces/IYardToken.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import { IYardNFTWrapper } from "./interfaces/IYardNFTWrapper.sol";
+import { IYardPair } from "./interfaces/IYardPair.sol";
 
-import {Math} from "./libraries/Math.sol";
+import { Math } from "./libraries/Math.sol";
+
+import { YardFee } from "./utils/YardFee.sol";
 
 /**
 * @title YardPair
@@ -16,17 +17,18 @@ import {Math} from "./libraries/Math.sol";
 * @dev YardPair contract.
 */
 
-contract YardPair is IERC721Receiver, IYardPair {
+contract YardPair is IERC721Receiver, IYardPair, YardFee {
     uint64 internal constant LIQUIDITY_PERIOD = 30 days;
 
-    // Goerli addresses, change to taste before deployment. 
-    address internal constant YARD_TOKEN = 0x9bC25b28A4144f92b9fa7271dD722Ad4eAB51a25;
+    address internal immutable FEE_TOKEN;
     address internal constant YARD_WRAPPER = address(0x02); // @reminder Hard code this.
+
+    uint256 public totalAmountClaimed;
 
     address internal factory;
     address internal router;
 
-    IYardToken internal yardToken = IYardToken(YARD_TOKEN);
+    IERC20 internal feeToken;
     IYardNFTWrapper internal yardWrapper = IYardNFTWrapper(YARD_WRAPPER);
 
     IERC721 internal nft0;
@@ -49,8 +51,6 @@ contract YardPair is IERC721Receiver, IYardPair {
 
     mapping(address provider => uint256 count) internal deposited;
     mapping(address provider => uint256 count) internal totalDeposited;
-
-    uint256 internal totalAmountClaimed;
 
     mapping(address provider => uint256 amount) internal lpRewardAmountClaimed;
     mapping(address provider => uint256 time) internal lastLPTime;
@@ -79,10 +79,19 @@ contract YardPair is IERC721Receiver, IYardPair {
         _;
     }
 
-    constructor(IERC721 nftA, IERC721 nftB, address _router) {
+    constructor(
+        IERC721 nftA,
+        IERC721 nftB,
+        address _router,
+        address _pairOwner,
+        uint256 _fee,
+        address _feeToken
+    ) YardFee(_pairOwner, _fee) {
         // @reminder Assert nftA != nftB in YardFactory.
-        factory = msg.sender;
         router = _router;
+        FEE_TOKEN = _feeToken;
+        feeToken = IERC20(_feeToken);
+        /// @notice NFTs are arranged in descending order of their uint256 values.
         (nft0, nft1) = (nftA > nftB) ? (nftA, nftB) : (nftB, nftA);
     }
 
@@ -95,7 +104,7 @@ contract YardPair is IERC721Receiver, IYardPair {
         address to
     )
         external
-        onlyFactoryOrRouter
+        onlyRouter
         returns (uint256 wId)
     {
         if ((nftIn != nft0) && (nftIn != nft1)) revert("YARD: NON_POOL_NFT");
@@ -159,7 +168,7 @@ contract YardPair is IERC721Receiver, IYardPair {
             IERC721(YARD_WRAPPER).safeTransferFrom(address(this), to, idOut);
         } else yardWrapper.release(wId);
 
-        IERC20(YARD_TOKEN).transfer(to, _reward);
+        feeToken.transfer(to, _reward);
 
         _idOut = idOut;
 
@@ -187,12 +196,13 @@ contract YardPair is IERC721Receiver, IYardPair {
         if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_NOT_IN_POOL");
         if (to == address(0)) revert("YARD: ZERO_ADDRESS");
 
+        /// @notice Whoever is receiving NFT pays for it.
+        feeToken.transferFrom(to, address(this), swapFee);
+
         _balancePoolReserves(nftOut, idOut);
         _updatePoolReserves(nftIn, idIn);
 
         IERC721(nftOut).safeTransferFrom(address(this), to, idOut);
-
-        yardToken.mint();
 
         _idOut = idOut;
 
@@ -214,7 +224,7 @@ contract YardPair is IERC721Receiver, IYardPair {
         lpRewardAmountClaimed[lpProvider] += reward;
         totalAmountClaimed += reward;
 
-        IERC20(YARD_TOKEN).transfer(lpProvider, reward);
+        feeToken.transfer(lpProvider, reward);
 
         emit RewardClaimed(lpProvider, reward);
     }
@@ -305,7 +315,7 @@ contract YardPair is IERC721Receiver, IYardPair {
         view
         returns (uint256)
     {
-        uint256 totalRewards = IERC20(YARD_TOKEN).balanceOf(address(this)) + totalAmountClaimed;
+        uint256 totalRewards = feeToken.balanceOf(address(this)) + totalAmountClaimed;
         uint256 numerator = lpShares * totalRewards;
         uint256 denominator = totalSupply;
 
@@ -317,7 +327,7 @@ contract YardPair is IERC721Receiver, IYardPair {
     view
     returns (uint256)
     {
-        uint256 totalRewards = IERC20(YARD_TOKEN).balanceOf(address(this));
+        uint256 totalRewards = feeToken.balanceOf(address(this));
 
         uint256 numerator = lpShares * totalRewards;
         uint256 denominator = totalSupply;

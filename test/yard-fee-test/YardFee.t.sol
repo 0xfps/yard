@@ -12,7 +12,7 @@ contract YardFeeTest is Test {
 
     function setUp() public {
         vm.prank(owner);
-        yardFee = new YardFee();
+        yardFee = new YardFee(owner, 0);
     }
 
     function testSetUp() public {
