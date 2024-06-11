@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import {IYardFee} from "../interfaces/IYardFee.sol";
-import {Ownable, Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import { IYardFee } from "../interfaces/IYardFee.sol";
+import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /**
 * @title YardFee
@@ -19,9 +19,9 @@ contract YardFee is IYardFee, Ownable2Step {
     uint256 internal startTime;
     bool internal inProgress;
 
-    /// @dev Emitted when a new fee is queued or updated.
-    /// @param _oldFee `swapFee`.
-    /// @param _newFee `newFee`.
+    /// @dev    Emitted when a new fee is queued or updated.
+    /// @param  _oldFee `swapFee`.
+    /// @param  _newFee `newFee`.
     event FeeChangeQueued(uint256 _oldFee, uint256 _newFee);
     event FeeUpdated(uint256 _oldFee, uint256 _newFee);
 
@@ -31,8 +31,8 @@ contract YardFee is IYardFee, Ownable2Step {
     }
 
     /**
-    * @dev  Updates `swapFee` to `newFee` if there's a change
-    *       in progress and time is past limit.
+    * @dev      Updates `swapFee` to `newFee` if there's a change
+    *           in progress and time is past limit.
     * @notice   If `inProgress` is true, then:
     *           1. A new `startTime` has been set.
     *           2. A new `newFee` has been set.
@@ -57,11 +57,12 @@ contract YardFee is IYardFee, Ownable2Step {
     }
 
     /**
-    * @dev  Allows the owner to queue a new fee change.
+    * @dev      Allows the owner to queue a new fee change.
     * @notice   New fees can be queued as long as there is none in
     *           progress. This will set the `startTime` of queue to
     *           be used by the `check()` modifier.
-    * @param _newFee New fee to be set after `LOCK` period.
+    *
+    * @param    _newFee New fee to be set after `LOCK` period.
     */
     function queueFeeChange(uint256 _newFee) public onlyOwner check {
         if (inProgress) revert("YARD: FEE_CHANGE_IN_QUEUE");
@@ -73,8 +74,9 @@ contract YardFee is IYardFee, Ownable2Step {
     }
 
     /**
-    * @dev  Updates the fee to a new fee.
-    * @param _newFee New fee.
+    * @dev      Updates the fee to a new fee.
+    *
+    * @param    _newFee New fee.
     */
     function _updateFee(uint256 _newFee) private {
         inProgress = false;

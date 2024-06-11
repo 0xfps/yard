@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 /**
 * @title Math
 * @author fps (@0xfps).
-* @dev A math library to generate random numbers within a limit.
+* @dev A simple, low-built, math library to generate random numbers within a limit.
 */
 
 library Math {
