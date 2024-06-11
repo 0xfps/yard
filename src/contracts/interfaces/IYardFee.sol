@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 /**
-* @title IYardFee
-* @author fps (@0xfps).
-* @dev Interface for `YardFee` contract.
+* @title    IYardFee
+* @author   fps (@0xfps).
+* @dev      Interface for `YardFee` contract.
 */
 
 interface IYardFee {

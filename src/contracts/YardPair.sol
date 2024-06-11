@@ -12,51 +12,82 @@ import { Math } from "./libraries/Math.sol";
 import { YardFee } from "./utils/YardFee.sol";
 
 /**
-* @title YardPair
-* @author fps (@0xfps).
-* @dev YardPair contract.
+* @title    YardPair
+* @author   fps (@0xfps).
+* @dev      YardPair, (just like UniswapPair) is a contract that holds all NFTs that are swappable.
+*           This can also be called a pool. The idea is that swaps would be instant as long as the
+*           ID of the NFT to be swapped to is available in this pair contract. And to top it off,
+*           this contract will charge fees on swap, set and adjustable by the pool owner. These
+*           fees are accumulated and distributed among liquidity providers according to your pool
+*           NFT share.
 */
 
 contract YardPair is IERC721Receiver, IYardPair, YardFee {
+    /// @dev Liquidity cannot be withdrawn for a period of 30 days after it has been added.
     uint64 internal constant LIQUIDITY_PERIOD = 30 days;
 
-    address internal immutable FEE_TOKEN;
-    address internal constant YARD_WRAPPER = address(0x02); // @reminder Hard code this.
-
+    /// @dev Total amount of fees claimed from this pool.
     uint256 public totalAmountClaimed;
 
+    /// @dev YardFactory address.
     address internal factory;
+    /// @dev YardRouter address.
     address internal router;
 
+    /// @dev Token for paying fees, will be a stable token.
     IERC20 internal feeToken;
-    IYardNFTWrapper internal yardWrapper = IYardNFTWrapper(YARD_WRAPPER);
+    /// @dev YardWrapper contract instance.
+    IYardNFTWrapper internal yardWrapper;
+    /// @dev YardWrapper contract instance.
+    address internal immutable YARD_WRAPPER;
 
+    /// @dev One NFT in the pool.
     IERC721 internal nft0;
+    /// @dev Second NFT in pool.
     IERC721 internal nft1;
 
+    /// @dev Number of NFT0 in pool.
     uint256 internal nft0Supply;
+    /// @dev Number of NFT1 in pool.
     uint256 internal nft1Supply;
+    /// @dev Total supply of NFTs in the pool.
     uint256 internal totalSupply;
 
+    /// @dev An array of all the IDs for NFT0 in the pool.
     uint256[] internal ids0;
+    /// @dev An array of all the IDs for NFT1 in the pool.
     uint256[] internal ids1;
 
+    /// @dev    Mapping to identify that a particular id for an NFT of the pair is in the
+    ///         respective `ids` array.
     mapping(IERC721 nft => mapping(uint256 id => bool inArray)) internal inArray;
+    /// @dev    To save time finding the index of a particular NFT id in the array,
+    ///         this mapping stores that data.
     mapping(IERC721 nft => mapping(uint256 id => uint256 index)) internal indexes;
 
+    /// @dev A mapping of each wrapped NFT ID to the underlying NFT address.
     mapping(uint256 wrappedId => IERC721 nft) internal wrappedNFTs;
+    /// @dev A mapping of each wrapped NFT ID to the underlying NFT address and NFT ID.
     mapping(uint256 wrappedId => mapping(IERC721 nft => uint256 nftId)) internal underlyingNFTs;
 
+    /// @dev A mapping to show whether an NFT `nft` with ID `id` is still in the pool.
     mapping(IERC721 nft => mapping(uint256 id => bool inPool)) internal inPool;
 
+    /// @dev    A mapping to store how many NFTs a provider has deposited that have not
+    ///         been removed by `removeLiquidity`.
     mapping(address provider => uint256 count) internal deposited;
+    /// @dev A mapping to store the total number of all the NFTs a provider has deposited in the poo.
     mapping(address provider => uint256 count) internal totalDeposited;
 
+    /// @dev A mapping to store how much a liquidity provider has claimed.
     mapping(address provider => uint256 amount) internal lpRewardAmountClaimed;
+    /// @dev A mapping to store the last block timestamp a particular provider added liquidity.
     mapping(address provider => uint256 time) internal lastLPTime;
 
+    /// @dev Reentrancy guard.
     bool internal isLocked;
 
+    /// @dev Reentrancy guard.
     modifier lock() {
         if (isLocked) revert("YARD: TRANSACTION_LOCKED");
         isLocked = true;
@@ -79,18 +110,29 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         _;
     }
 
+    /**
+    * @param nftA           First NFT of pool pair.
+    * @param nftB           Second NFT of pool pair.
+    * @param _router        Address of YardRouter.
+    * @param _pairOwner     Pool owner.
+    * @param _fee           Fee amount, it can be 0.1, 0.3 or 0.5.
+    * @param _feeToken      Address of fee token, a stable coin.
+    * @param _yardWrapper   Address of YardWrapper contract.
+    */
     constructor(
         IERC721 nftA,
         IERC721 nftB,
         address _router,
         address _pairOwner,
         uint256 _fee,
-        address _feeToken
+        address _feeToken,
+        address _yardWrapper
     ) YardFee(_pairOwner, _fee) {
         // @reminder Assert nftA != nftB in YardFactory.
         router = _router;
-        FEE_TOKEN = _feeToken;
         feeToken = IERC20(_feeToken);
+        YARD_WRAPPER = _yardWrapper;
+        yardWrapper = IYardNFTWrapper(_yardWrapper);
         /// @notice NFTs are arranged in descending order of their uint256 values.
         (nft0, nft1) = (nftA > nftB) ? (nftA, nftB) : (nftB, nftA);
     }

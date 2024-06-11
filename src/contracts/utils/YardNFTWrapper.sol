@@ -8,18 +8,18 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /**
- * @title YardNFTWrapper
- * @author sagetony224 (@sagetony224).
- * @dev A Yard NFT Wrapper contract.
- * @notice   The Yard NFT Wrapper has a singular function of wrapping NFTs
- *           by keeping their URIs intact and sending that to specific addresses.
- *           Override ERC-721 `approve()`.
- *           Override ERC-721 `tokenURI().`
- *           Override ERC-721 `transferFrom()`.
- *           Override ERC-721 `safeTransferFrom()`.
- *           Override ERC-721 `safeTransferFrom()`.
- *           NFTs cannot be transferred until they're `release()`d.
- *           All functions here except `getOwner()` will be callable only by the `YardPair`.
+ * @title   YardNFTWrapper
+ * @author  sagetony224 (@sagetony224).
+ * @dev     A Yard NFT Wrapper contract.
+ * @notice  The Yard NFT Wrapper has a singular function of wrapping NFTs
+ *          by keeping their URIs intact and sending that to specific addresses.
+ *          Override ERC-721 `approve()`.
+ *          Override ERC-721 `tokenURI().`
+ *          Override ERC-721 `transferFrom()`.
+ *          Override ERC-721 `safeTransferFrom()`.
+ *          Override ERC-721 `safeTransferFrom()`.
+ *          NFTs cannot be transferred until they're `release()`d.
+ *          All functions here except `getOwner()` will be callable only by the `YardPair`.
  */
 
 contract YardNFTWrapper is IYardNFTWrapper, ERC721, Ownable2Step {

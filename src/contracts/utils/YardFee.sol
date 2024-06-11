@@ -4,13 +4,15 @@ pragma solidity ^0.8.0;
 import { IYardFee } from "../interfaces/IYardFee.sol";
 import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
+import { YardFeeRange } from "./YardFeeRange.sol";
+
 /**
-* @title YardFee
-* @author fps (@0xfps).
-* @dev An adjustable fee contract guarded by a Timelock.
+* @title    YardFee
+* @author   fps (@0xfps).
+* @dev      An adjustable fee contract guarded by a Timelock.
 */
 
-contract YardFee is IYardFee, Ownable2Step {
+contract YardFee is IYardFee, YardFeeRange, Ownable2Step {
     uint256 internal constant LOCK = 1 weeks;
 
     uint256 public swapFee;
@@ -53,7 +55,7 @@ contract YardFee is IYardFee, Ownable2Step {
 
     /// @dev Allows only contract owner to delete fees.
     function deleteFee() public onlyOwner {
-        queueFeeChange(0);
+        queueFeeChange(1e5); // Default fee.
     }
 
     /**
@@ -66,6 +68,7 @@ contract YardFee is IYardFee, Ownable2Step {
     */
     function queueFeeChange(uint256 _newFee) public onlyOwner check {
         if (inProgress) revert("YARD: FEE_CHANGE_IN_QUEUE");
+        if (!feeIsSettable(_newFee)) revert("YARD: FEE_IS_NOT_0.1_0.3_0.5");
         inProgress = true;
         newFee = _newFee;
         startTime = block.timestamp;
@@ -79,6 +82,8 @@ contract YardFee is IYardFee, Ownable2Step {
     * @param    _newFee New fee.
     */
     function _updateFee(uint256 _newFee) private {
+        if (!feeIsSettable(_newFee)) revert("YARD: FEE_IS_NOT_0.1_0.3_0.5");
+
         inProgress = false;
         uint256 _oldFee = swapFee;
         swapFee = _newFee;

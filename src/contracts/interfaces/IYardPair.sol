@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
-* @title IYardPair
-* @author fps (@0xfps).
-* @dev Interface for the `YardPair` contract.
+* @title    IYardPair
+* @author   fps (@0xfps).
+* @dev      Interface for the `YardPair` contract.
 */
 
 interface IYardPair {
