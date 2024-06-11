@@ -133,6 +133,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         feeToken = IERC20(_feeToken);
         YARD_WRAPPER = _yardWrapper;
         yardWrapper = IYardNFTWrapper(_yardWrapper);
+        /// @notice NFTs are arranged in descending order of their uint256 values.
         (nft0, nft1) = (nftA > nftB) ? (nftA, nftB) : (nftB, nftA);
     }
 
