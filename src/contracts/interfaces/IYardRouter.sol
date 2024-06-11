@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
 * @title IYardRouter
@@ -28,6 +28,7 @@ interface IYardRouter {
         uint256 idOut
     );
 
+    /// @dev Add liquidity of a single NFT to a pool.
     function addLiquidity(
         IERC721 nftA,
         IERC721 nftB,
@@ -36,6 +37,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256 wId);
 
+    /// @dev Add liquidity for a group of NFTs to a pool.
     function addBatchLiquidity(
         IERC721 nftA,
         IERC721 nftB,
@@ -44,6 +46,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256[] memory wId);
 
+    /// @dev Remove liquidity of a single NFT in a pool.
     function removeLiquidity(
         IERC721 nftA,
         IERC721 nftB,
@@ -53,6 +56,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256 _idOut);
 
+    /// @dev Remove liquidity for a group of NFTs in a pool.
     function removeBatchLiquidity(
         IERC721 nftA,
         IERC721 nftB,
@@ -62,13 +66,15 @@ interface IYardRouter {
         address to
     ) external returns (uint256[] memory _idsOut);
 
-    function newPair(
+    /// @dev Deploys a new `YardPair` contract by calling the `YardFactory`.
+    function createPair(
         IERC721 nftA,
         uint256[] memory idsA,
         IERC721 nftB,
         uint256[] memory idsB
     ) external returns (address pair);
 
+    /// @dev Swap one `idIn` for `idOut` in a pair and send them to `to`.
     function swapNFTForExactNFT(
         IERC721[] memory path,
         uint256 idIn,
@@ -76,6 +82,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256 _idOut);
 
+    /// @dev Swap a group of `idsIn` for `idsOut` in a pair and send them to `to`.
     function swapBatchNFTsForExactNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
@@ -83,31 +90,37 @@ interface IYardRouter {
         address to
     ) external returns (uint256[] memory _idsOut);
 
+    /// @dev Swap one `idIn` for a random NFT in a pair and send them to `to`.
     function swapNFTForArbitraryNFT(
         IERC721[] memory path,
         uint256 idIn,
         address to
     ) external returns (uint256 _idOut);
 
+    /// @dev Swap a group of `idsIn` for random NFTs in a pair and send them to `to`.
     function swapBatchNFTsForArbitraryNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
         address to
     ) external returns (uint256[] memory _idsOut);
 
+    /// @dev Take rewards for `msg.sender` in the pair.
     function takeRewards(
         IERC721 nftA,
         IERC721 nftB,
         address to
     ) external returns (uint256);
 
+    /// @dev Returns a tuple of the number of NFTs, nftA and nftB in a pair.
     function viewAllReserves(IERC721 nftA, IERC721 nftB)
         external
         view
         returns (uint256, uint256);
 
+    /// @dev Return the address of the `YardPair` contract for [nftA][nftB].
     function getPair(IERC721 nftA, IERC721 nftB) external returns (address pair);
 
+    /// @dev Calculate and return rewards claimable by `lpProvider`.
     function getRewards(
         IERC721 nftA,
         IERC721 nftB,

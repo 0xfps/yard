@@ -8,5 +8,6 @@ pragma solidity ^0.8.0;
 */
 
 interface IYardFee {
+    /// @dev Return set `YardPair` fee.
     function getFee() external returns (uint256);
 }
