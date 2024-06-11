@@ -5,14 +5,14 @@ import "./YardFee.t.sol";
 
 contract GetFeeTest is YardFeeTest {
     function testAfterDeployment() public {
-        assertTrue(yardFee.getFee() == 0);
+        assertTrue(yardFee.getFee() == 1e5);
     }
 
     function testWhenQueueInProgressAfterDeploy() public {
         vm.prank(owner);
         yardFee.queueFeeChange(fee);
 
-        assertTrue(yardFee.getFee() == 0);
+        assertTrue(yardFee.getFee() == 1e5);
     }
 
     function testAfterQueueChange() public {
@@ -33,7 +33,7 @@ contract GetFeeTest is YardFeeTest {
         assertTrue(yardFee.getFee() == fee);
 
         vm.prank(owner);
-        yardFee.queueFeeChange(5 ether);
+        yardFee.queueFeeChange(5e5);
 
         skip(6 days);
 
@@ -56,6 +56,6 @@ contract GetFeeTest is YardFeeTest {
 
         skip(2 days);
 
-        assertTrue(yardFee.getFee() == 0);
+        assertTrue(yardFee.getFee() == 1e5);
     }
 }

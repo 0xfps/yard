@@ -39,6 +39,6 @@ contract DeleteFeeTest is YardFeeTest {
     function testFeeChangedAfterDelete() public {
         testDeleteByOwnerWhenNotInProgress();
         skip(7 days);
-        assertEq(yardFee.getFee(), 0);
+        assertEq(yardFee.getFee(), 1e5);
     }
 }

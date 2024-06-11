@@ -8,11 +8,11 @@ contract YardFeeTest is Test {
     YardFee public yardFee;
     address public owner = vm.addr(1);
     address public hacker = vm.addr(2);
-    uint256 internal fee = 3 ether;
+    uint256 internal fee = 3e5;
 
     function setUp() public {
         vm.prank(owner);
-        yardFee = new YardFee(owner, 0);
+        yardFee = new YardFee(owner, 1e5);
     }
 
     function testSetUp() public {
