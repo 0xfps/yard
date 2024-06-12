@@ -12,6 +12,9 @@ abstract contract YardFeeRange {
     uint32 internal constant THIRTY_CENTS = 3e5;
     uint32 internal constant FIFTY_CENTS = 5e5;
 
+    /// @dev    Return true if fee can be set as one of the defined three.
+    /// @param  _fee    Fee value.
+    /// @return bool    Settable status.
     function feeIsSettable(uint256 _fee) public pure returns (bool) {
         return (
             _fee == TEN_CENTS ||
