@@ -83,6 +83,8 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
     mapping(address provider => uint256 amount) internal lpRewardAmountClaimed;
     /// @dev A mapping to store the last block timestamp a particular provider added liquidity.
     mapping(address provider => uint256 time) internal lastLPTime;
+    /// @dev A mapping to store addresses that provided liquidity with which NFTs and which IDs.
+    mapping(IERC721 nft => mapping(uint256 id => address provider)) internal nftLPProviders;
 
     /// @dev Reentrancy guard.
     bool internal isLocked;
@@ -136,8 +138,16 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         (nft0, nft1) = (nftA > nftB) ? (nftA, nftB) : (nftB, nftA);
     }
 
-    /// @notice Router sends NFTs to Pair, Pair validates ownership and
-    ///         finishes up.
+    /**
+    * @dev      Adds liquidity with `nftIn`, sending the wrapped NFT from the YardWrapper
+    *           to `to`. Router sends NFTs to Pair, Pair validates ownership and then
+    *           finishes up.
+    *
+    * @param    nftIn   Address of NFT, one of the two in the pair.
+    * @param    idIn    ID of NFT provided as liquidity.
+    * @param    from    Address transferring NFT.
+    * @param    to      Address to receive the wrapped NFT.
+    */
     function addLiquidity(
         IERC721 nftIn,
         uint256 idIn,
@@ -165,10 +175,26 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
 
         wrappedNFTs[wId] = nftIn;
         underlyingNFTs[wId][nftIn] = idIn;
+        nftLPProviders[nftIn][idIn] = from;
 
         emit LiquidityAdded(nftIn, idIn);
     }
 
+    /**
+    * @notice   Removes `nftOut` and `idOut` from the pair, unwrapping the wrapped `wId`.
+    *           The `wId` is saved in the mapping to identify which of the two NFT pairs
+    *           in the pool was wrapped to get that. In cases where `nftOut` is no longer
+    *           in the pool, i.e., has been swapped, the wrapped NFT with ID `wId` is
+    *           released for the owner. And the pool dividends for the liquidity removal
+    *           of one NFT is sent to `to`.
+    *           Liquidity can only be removed 30 days after last liquidity provision.
+    *
+    * @param    nftOut  Address of NFT, one of the two in the pair.
+    * @param    idOut   ID of NFT provided as liquidity.
+    * @param    wId     ID of wrapped token.
+    * @param    from    Address that provided the liquidity.
+    * @param    to      Address to receive rewards.
+    */
     function removeLiquidity(
         IERC721 nftOut,
         uint256 idOut,
@@ -185,7 +211,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         if ((lastLPTime[from] + LIQUIDITY_PERIOD) > block.timestamp)
             revert("YARD: INVALID_LIQUIDITY_REMOVAL_PERIOD");
 
-        if (IERC721(YARD_WRAPPER).ownerOf(wId) != from) revert("YARD: NOT_WRAPPED_NFT_OWNER");
+        if (nftLPProviders[nftOut][idOut] != from) revert("YARD: NOT_PROVIDED_BY_OWNER");
 
         if (wrappedNFTs[wId] != nftOut) revert("YARD: WRAPPED_TOKEN_MISMATCH");
         if (underlyingNFTs[wId][nftOut] != idOut) revert("YARD: NOT_UNDERLYING_NFT");
@@ -199,6 +225,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
 
         delete wrappedNFTs[wId];
         delete underlyingNFTs[wId][nftOut];
+        delete nftLPProviders[nftOut][idOut];
 
         totalAmountClaimed += _reward;
 
@@ -206,7 +233,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
             _balancePoolReserves(nftOut, idOut);
 
             yardWrapper.unwrap(wId);
-            IERC721(YARD_WRAPPER).safeTransferFrom(address(this), to, idOut);
+            IERC721(nftOut).safeTransferFrom(address(this), to, idOut);
         } else yardWrapper.release(wId);
 
         feeToken.transfer(to, _reward);
@@ -216,6 +243,16 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         emit LiquidityRemoved(nftOut, idOut);
     }
 
+    /**
+    * @notice   Takes in nftIn, idIn and gives out nftOut, idOut. Charges fees
+    *           and updates pool as intended.
+    *
+    * @param    nftIn   Address of NFT swapping in, one of the two in the pair.
+    * @param    idIn    ID of NFT swapping in.
+    * @param    nftOut  Address of NFT swapping out, one of the two in the pair.
+    * @param    idOut   ID of NFT swapping out.
+    * @param    to      Address to receive NFT.
+    */
     function swap(
         IERC721 nftIn,
         uint256 idIn,
@@ -228,13 +265,13 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         onlyRouter
         returns (uint256 _idOut)
     {
-        if (IERC721(nftIn).ownerOf(idIn) != address(this)) revert("YARD: NFT_NOT_RECEIVED");
+        if (IERC721(nftIn).ownerOf(idIn) != address(this)) revert("YARD: NFT_NOT_OWNED_BY_POOL");
 
         (uint256 reserve, ) = getReservesFor(nftOut);
 
         if (reserve == 0) revert("YARD: ZERO_LIQUIDITY");
         if (!inPool[nftOut][idOut]) revert("YARD: NFT_NOT_IN_POOL");
-        if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_NOT_IN_POOL");
+        if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_CANT_BE_SENT_TO_POOL");
         if (to == address(0)) revert("YARD: ZERO_ADDRESS");
 
         /// @notice Whoever is receiving NFT pays for it.
@@ -255,6 +292,13 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         );
     }
 
+    /**
+    * @dev      Calculate and transfer rewards claimable by `lpProvider`.
+    *
+    * @param    lpProvider  Address of liquidity provider.
+    *
+    * @return   reward      Reward value.
+    */
     function claimRewards(address lpProvider) external lock returns (uint256 reward) {
         if (lpProvider == address(0)) revert("YARD: CLAIM_BY_ZERO_ADDRESS");
         if (lastLPTime[lpProvider] == 0) revert("YARD: LIQUIDITY_NOT_PROVIDED");
@@ -270,10 +314,15 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         emit RewardClaimed(lpProvider, reward);
     }
 
+    /// @dev    Return the supplies for the two NFT pairs.
+    /// @return (uint256, uint256) Supply tuple.
     function getAllReserves() public view returns (uint256, uint256) {
         return (nft0Supply, nft1Supply);
     }
 
+    /// @dev    Return the supplies for one of the two NFT pairs.
+    /// @param  nft     NFT Address.
+    /// @return tuple   Supply for `nft` and ids array for NFT.
     function getReservesFor(IERC721 nft) public view returns (uint256, uint256[] memory) {
         uint256 supply;
         uint256[] memory supplies;
@@ -293,11 +342,14 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         return (supply, supplies);
     }
 
+    /// @dev    Return the value claimable by `lpProvider`.
+    /// @param  lpProvider  Address of LP Provider.
+    /// @return uint256     Value claimable.
     function calculateRewards(address lpProvider) public view returns (uint256) {
         return _calculateRewards(lpProvider, deposited[lpProvider]);
     }
 
-    /// @dev OpenZeppelin requirement for NFT receptions.
+    /// @dev    OpenZeppelin requirement for NFT receptions.
     /// @return bytes4  bytes4(keccak256(
     ///                     onERC721Received(address,address,uint256,bytes)
     ///                 )) => 0x150b7a02.
@@ -310,6 +362,13 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         return 0x150b7a02;
     }
 
+    /**
+    * @dev      Update pool mappings by removing details for nftOut and idOut
+    *           and also deleting the indexes from the index array.
+    *
+    * @param    nftOut Address of NFT out.
+    * @param    idOut  ID of NFT out.
+    */
     function _balancePoolReserves(IERC721 nftOut, uint256 idOut) internal {
         inPool[nftOut][idOut] = false;
 
@@ -335,22 +394,38 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         (nftOut == nft0) ? --nft0Supply : --nft1Supply;
     }
 
+    /**
+    * @dev      This function is called on every liquidity provision or swap to update
+    *           the details of the NFT ID arrays sent in the pool. These
+    *           details include the arrays of IDs for both NFTs, depending
+    *           on which one of the pair is trying to be updated.
+    *           It also will store the indexes of the nftIn and idIn in their
+    *           ids0 or ids1 array.
+    *
+    * @param    nftIn   Address of NFT that its reserves would be updated.
+    * @param    idIn    Id of NFT to update the reserves with.
+    */
     function _updatePoolReserves(IERC721 nftIn, uint256 idIn) internal {
-        /// @notice There can only be two NFTs.
         (nftIn == nft0) ? ++nft0Supply : ++nft1Supply;
 
         inArray[nftIn][idIn] = true;
         inPool[nftIn][idIn] = true;
 
-        if (nftIn == nft0) {
-            ids0.push(idIn);
-            indexes[nftIn][idIn] = ids0.length - 1;
-        } else {
-            ids1.push(idIn);
-            indexes[nftIn][idIn] = ids1.length - 1;
-        }
+        (nftIn == nft0) ? ids0.push(idIn) : ids1.push(idIn);
+
+        /// @notice Assign the index of the nftIn and idIn as the last element
+        ///         in the corresponding matching array.
+        indexes[nftIn][idIn] = (nftIn == nft0) ? ids0.length - 1 : ids1.length - 1;
     }
 
+    /**
+    * @dev      Uses OpenZeppelin PaymentSplitter (https://rb.gy/d76i5y) formula.
+    *
+    * @param    lpProvider  Address of liquidity provider.
+    * @param    lpShares    Liquidity pool shares owned by `lpProvider`.
+    *
+    * @return   uint256     Reward value.
+    */
     function _calculateRewards(address lpProvider, uint256 lpShares)
         internal
         view
@@ -363,6 +438,13 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         return (numerator / denominator) - lpRewardAmountClaimed[lpProvider];
     }
 
+    /**
+    * @dev      Calculate the rewards for `lpShares` with respect to totalSupply.
+    *
+    * @param    lpShares Liquidity pool shares.
+    *
+    * @return   uint256 share.
+    */
     function _calculateLPRewards(uint256 lpShares)
     private
     view
