@@ -36,11 +36,11 @@ contract YardFactory is IYardFactory, Ownable2Step {
     *                   ROUTER is address(0). And after setting, ownership is revoked,
     *                   ensuring that ROUTER cannot be reset again.
     *
-    * @param _router    Address of router.
+    * @param router     Address of router.
     */
-    function setRouter(address _router) public onlyOwner {
-        if (_router == address(0)) revert("YARD: ROUTER_IS_ZERO_ADDRESS");
-        ROUTER = _router;
+    function setRouter(address router) public onlyOwner {
+        if (router == address(0)) revert("YARD: ROUTER_IS_ZERO_ADDRESS");
+        ROUTER = router;
         Ownable._transferOwnership(address(0));
     }
 

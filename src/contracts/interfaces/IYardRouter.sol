@@ -126,4 +126,12 @@ interface IYardRouter {
         IERC721 nftB,
         address lpProvider
     ) external view returns (uint256);
+
+    /// @dev Return the NFT ID that will be swapped when an arbitrary swap is carried out.
+    function precalculateOutputNFT(
+        IERC721 nftA,
+        IERC721 nftB,
+        IERC721 nftIn,
+        uint256 idIn
+    ) external view returns (uint256 idOut);
 }
