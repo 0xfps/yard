@@ -8,6 +8,8 @@ import { IYardRouter } from "./interfaces/IYardRouter.sol";
 
 import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
+import { YardFeeRange } from "./utils/YardFeeRange.sol";
+
 /**
 * @title    YardRouter
 * @author   fps (@0xfps).
@@ -17,20 +19,23 @@ import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2St
 *           and claims of pool rewards are also initiated here.
 */
 
-abstract contract YardRouter is IYardRouter, Ownable2Step {
+abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
     /// @dev Default fee, presumably stable token, $0.3.
     uint32 public constant DEFAULT_FEE = 3e5;
     /// @dev Fee token address.
     address public immutable FEE_TOKEN;
+    /// @dev YardWrapper contract address.
+    address public immutable YARD_WRAPPER;
     /// @dev YardFactory interface instance.
     IYardFactory public FACTORY;
 
-    constructor(address feeToken) {
+    constructor(address feeToken, address yardWrapper) {
         FEE_TOKEN = feeToken;
+        YARD_WRAPPER = yardWrapper;
     }
 
     /**
-    * @dev      Set factory address and revoke ownership of Router.
+    * @dev      Set factory and YardWrapper address and revoke ownership of Router.
     *           Factory can only be set once meaning that on first setting,
     *           FACTORY is address(0). And after setting, ownership is revoked,
     *           ensuring that FACTORY cannot be reset again.
@@ -124,6 +129,8 @@ abstract contract YardRouter is IYardRouter, Ownable2Step {
                 to
             );
         }
+
+        emit BatchLiquidityAdded(nftIn, idsIn);
     }
 
     /**
@@ -157,6 +164,8 @@ abstract contract YardRouter is IYardRouter, Ownable2Step {
             wId,
             to
         );
+
+        emit LiquidityRemoved(nftOut, idOut);
     }
 
     /**
@@ -197,6 +206,52 @@ abstract contract YardRouter is IYardRouter, Ownable2Step {
                 to
             );
         }
+
+        emit BatchLiquidityRemoved(nftOut, idsOut);
+    }
+
+    /**
+    * @dev      Call to Factory to create pair.
+    *
+    * @param    nftA    Address of first NFT.
+    * @param    idsA    Array of ids for `nftA`.
+    * @param    nftB    Address of second NFT.
+    * @param    idsB    Array of ids for `nftB`.
+    * @param    fee     Swap fee for pair.
+    * @param    to      Address to receive wrapped NFTs.
+    *
+    * @return  pair     Pair Address
+    */
+    function createPair(
+        IERC721 nftA,
+        uint256[] memory idsA,
+        IERC721 nftB,
+        uint256[] memory idsB,
+        uint256 fee,
+        address to
+    ) public returns (address pair) {
+        if (
+            (address(nftA) == address(0)) ||
+            (address(nftB) == address(0))
+        ) revert("YARD: ZERO_ADDRESS_NFT");
+
+        if (idsA.length == 0) revert("YARD: ZERO_LENGTH");
+        if (idsA.length != idsB.length) revert ("YARD: LENGTH_MISMATCH");
+        if (to == address(0)) revert("YARD: ZERO_TO_ADDRESS");
+
+        if (!feeIsSettable(fee)) revert("YARD: FEE_NOT_SETTABLE_CHOOSE_EITHER_0.1_0.3_0.5_*1E6");
+
+        pair = FACTORY.createPair(
+            nftA,
+            idsA,
+            nftB,
+            idsB,
+            msg.sender,
+            fee,
+            FEE_TOKEN,
+            YARD_WRAPPER,
+            to
+        );
     }
 
     /**

@@ -71,7 +71,9 @@ interface IYardRouter {
         IERC721 nftA,
         uint256[] memory idsA,
         IERC721 nftB,
-        uint256[] memory idsB
+        uint256[] memory idsB,
+        uint256 fee,
+        address to
     ) external returns (address pair);
 
     /// @dev Swap one `idIn` for `idOut` in a pair and send them to `to`.
