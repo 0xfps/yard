@@ -44,7 +44,7 @@ interface IYardRouter {
         IERC721 nftIn,
         uint256[] memory idsIn,
         address to
-    ) external returns (uint256[] memory wId);
+    ) external returns (uint256[] memory wIds);
 
     /// @dev Remove liquidity of a single NFT in a pool.
     function removeLiquidity(
@@ -118,7 +118,7 @@ interface IYardRouter {
         returns (uint256, uint256);
 
     /// @dev Return the address of the `YardPair` contract for [nftA][nftB].
-    function getPair(IERC721 nftA, IERC721 nftB) external returns (address pair);
+    function getPair(IERC721 nftA, IERC721 nftB) external view returns (address pair);
 
     /// @dev Calculate and return rewards claimable by `lpProvider`.
     function getRewards(
