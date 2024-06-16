@@ -89,6 +89,18 @@ abstract contract YardRouter is IYardRouter, Ownable2Step {
         );
     }
 
+    /**
+    * @dev      Add liquidity for a bunch of NFTs to a particular pair pool,
+    *           returning the ID of all the wrapped NFTs sent to the user.
+    *
+    * @param    nftA    Address of first NFT.
+    * @param    nftB    Address of second NFT.
+    * @param    nftIn   Address of NFT, one of the two in the pair.
+    * @param    idsIn   IDs of NFT provided as liquidity.
+    * @param    to      Address to receive the wrapped NFT.
+    *
+    * @return   wIds    IDs of wrapped NFT.
+    */
     function addBatchLiquidity(
         IERC721 nftA,
         IERC721 nftB,
@@ -109,6 +121,79 @@ abstract contract YardRouter is IYardRouter, Ownable2Step {
                 nftB,
                 nftIn,
                 idsIn[i],
+                to
+            );
+        }
+    }
+
+    /**
+    * @dev      Remove NFT liquidity from a particular pair pool, returning the ID of the
+    *           NFT removed.
+    *
+    * @param    nftA    Address of first NFT.
+    * @param    nftB    Address of second NFT.
+    * @param    nftOut  Address of NFT, one of the two in the pair.
+    * @param    idOut   ID of NFT taken.
+    * @param    to      Address to receive the withdrawn NFT.
+    *
+    * @return   _idOut  ID of removed NFT.
+    */
+    function removeLiquidity(
+        IERC721 nftA,
+        IERC721 nftB,
+        IERC721 nftOut,
+        uint256 idOut,
+        uint256 wId,
+        address to
+    ) public returns (uint256 _idOut) {
+        /// @dev Check validity of liquidity data.
+        _checkValidity(nftA, nftB, nftOut);
+
+        _idOut = _removeLiquidity(
+            nftA,
+            nftB,
+            nftOut,
+            idOut,
+            wId,
+            to
+        );
+    }
+
+    /**
+    * @dev      Remove liquidity for a group of NFTs from a particular pair pool, returning the IDs of the
+    *           NFTs removed.
+    *
+    * @param    nftA    Address of first NFT.
+    * @param    nftB    Address of second NFT.
+    * @param    nftOut  Address of NFT, one of the two in the pair.
+    * @param    idsOut  IDs of NFTs taken.
+    * @param    to      Address to receive the withdrawn NFTs.
+    *
+    * @return   _idsOut IDs of removed NFTs.
+    */
+    function removeBatchLiquidity(
+        IERC721 nftA,
+        IERC721 nftB,
+        IERC721 nftOut,
+        uint256[] memory idsOut,
+        uint256[] memory wIds,
+        address to
+    ) public returns (uint256[] memory _idsOut) {
+        /// @dev Check validity of liquidity data.
+        _checkValidity(nftA, nftB, nftOut);
+
+        if (idsOut.length == 0) revert("YARD: ZERO_LENGTH");
+        if (idsOut.length != wIds.length) revert("YARD: LENGTH_MISMATCH");
+
+        _idsOut = new uint256[](_idsOut.length);
+
+        for (uint256 i; i < idsOut.length; i++) {
+            _idsOut[i] = _removeLiquidity(
+                nftA,
+                nftB,
+                nftOut,
+                idsOut[i],
+                wIds[i],
                 to
             );
         }
@@ -136,6 +221,31 @@ abstract contract YardRouter is IYardRouter, Ownable2Step {
         );
 
         emit LiquidityAdded(nftIn, idIn);
+    }
+
+    /**
+    * @dev Refer to `removeLiquidity()`
+    */
+    function _removeLiquidity(
+        IERC721 nftA,
+        IERC721 nftB,
+        IERC721 nftOut,
+        uint256 idOut,
+        uint256 wId,
+        address to
+    ) internal returns (uint256 _idOut) {
+        /// @dev Check for `to` being address(0) has been handled by the Pair.
+        address pair = getPair(nftA, nftB);
+
+        _idOut = IYardPair(pair).removeLiquidity(
+            nftOut,
+            idOut,
+            wId,
+            msg.sender,
+            to
+        );
+
+        emit LiquidityRemoved(nftOut, _idOut);
     }
 
     /**

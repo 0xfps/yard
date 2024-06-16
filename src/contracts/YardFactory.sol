@@ -129,6 +129,7 @@ contract YardFactory is IYardFactory, Ownable2Step {
         address _pair,
         address _to
     ) internal {
+        if (idsA.length == 0) revert("YARD: ZERO_LENGTH");
         if (idsA.length != idsB.length) revert ("YARD: LENGTH_MISMATCH");
 
         for (uint256 i; i < idsA.length; i++) {
