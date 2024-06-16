@@ -104,6 +104,7 @@ contract YardFactory is IYardFactory, Ownable2Step {
             pairs[address(nftA)][address(nftB)] = pair;
             pairs[address(nftB)][address(nftA)] = pair;
             ++poolCount;
+            emit PairCreated(nftA, nftB, pair);
         }
     }
 
