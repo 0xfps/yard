@@ -6,6 +6,8 @@ import { IYardFactory } from "./interfaces/IYardFactory.sol";
 import { IYardPair } from "./interfaces/IYardPair.sol";
 import { IYardRouter } from "./interfaces/IYardRouter.sol";
 
+import { Math } from "./libraries/Math.sol";
+
 import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { YardFeeRange } from "./utils/YardFeeRange.sol";
@@ -274,7 +276,7 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         uint256 idIn,
         uint256 idOut,
         address to
-    ) external returns (uint256 _idOut) {
+    ) public returns (uint256 _idOut) {
         if (path.length != 2) revert("YARD: PATH_MUST_BE_TWO");
 
         /// @dev Direct swap.
@@ -289,8 +291,115 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
             idOut,
             to
         );
+    }
+    
+    function swapBatchNFTsForExactNFTs(
+        IERC721[] memory path,
+        uint256[] memory idsIn,
+        uint256[] memory idsOut,
+        address to
+    ) public returns (uint256[] memory _idsOut) {
+        if (path.length < 2) revert("YARD: INVALID_PATH_LENGTH");
+        if (idsIn.length != (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
+        if (idsIn.length != idsOut.length) revert("YARD: LENGTH_MISMATCH");
 
-        emit Swapped(path[0], idIn, path[1], idOut);
+        _idsOut = new uint256[](idsIn.length);
+
+        for (uint256 i; i < path.length - 1; i++) {
+            IERC721[] memory _path = new IERC721[](2);
+            _path[0] = path[i];
+            _path[1] = path[i + 1];
+
+            _idsOut[i] = swapNFTForExactNFT(_path, idsIn[i], idsOut[i], to);
+        }
+
+        emit BatchSwapped(
+            path,
+            idsIn,
+            idsOut
+        );
+    }
+
+    function swapNFTForArbitraryNFT(
+        IERC721[] memory path,
+        uint256 idIn,
+        address to
+    ) public returns (uint256 idOut) {
+        if (path.length != 2) revert("YARD: PATH_MUST_BE_TWO");
+
+        /// @dev Direct swap.
+        (bool pairExists, ) = _pairExists(path[0], path[1]);
+        if (!pairExists) revert("YARD: PAIR_INEXISTENT");
+
+        idOut = precalculateOutputNFT(path[0], path[1], path[0]);
+        idOut = swapNFTForExactNFT(path, idIn, idOut, to);
+    }
+
+    function swapBatchNFTsForArbitraryNFTs(
+        IERC721[] memory path,
+        uint256[] memory idsIn,
+        address to
+    ) public returns (uint256[] memory idsOut) {
+        if (path.length < 2) revert("YARD: INVALID_PATH_LENGTH");
+        if (idsIn.length != (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
+
+        idsOut = new uint256[](idsIn.length);
+
+        for (uint256 i; i < path.length - 1; i++) {
+            IERC721[] memory _path = new IERC721[](2);
+            _path[0] = path[i];
+            _path[1] = path[i + 1];
+
+            uint256 idOut = precalculateOutputNFT(path[i], path[i + 1], path[i]);
+            idsOut[i] = swapNFTForExactNFT(_path, idsIn[i], idOut, to);
+        }
+    }
+
+    function takeRewards(
+        IERC721 nftA,
+        IERC721 nftB
+    ) public returns (uint256) {
+        (bool pairExists, address pair) = _pairExists(nftA, nftB);
+        if (!pairExists) revert("YARD: PAIR_INEXISTENT");
+
+        return IYardPair(pair).claimRewards(msg.sender);
+    }
+
+    function viewAllReserves(IERC721 nftA, IERC721 nftB)
+        public
+        view
+        returns (uint256, uint256)
+    {
+        (bool pairExists, address pair) = _pairExists(nftA, nftB);
+        if (!pairExists) revert("YARD: PAIR_INEXISTENT");
+
+        return IYardPair(pair).getAllReserves();
+    }
+
+    function getRewards(
+        IERC721 nftA,
+        IERC721 nftB,
+        address lpProvider
+    ) public view returns (uint256) {
+        (bool pairExists, address pair) = _pairExists(nftA, nftB);
+        if (!pairExists) revert("YARD: PAIR_INEXISTENT");
+
+        return IYardPair(pair).calculateRewards(lpProvider);
+    }
+
+    function precalculateOutputNFT(
+        IERC721 nftA,
+        IERC721 nftB,
+        IERC721 nftIn
+    ) public view returns (uint256 idOut) {
+        _checkValidity(nftA, nftB, nftIn);
+        (bool pairExists, address pair) = _pairExists(nftA, nftB);
+        if (!pairExists) revert("YARD: PAIR_INEXISTENT");
+
+        /// @dev supply == supplyArray.length
+        (uint256 supply, uint256[] memory supplyArray) = IYardPair(pair).getReservesFor(nftIn);
+        uint256 randomIndex = Math.random(supply);
+        return supplyArray[randomIndex];
     }
 
     /**
@@ -303,7 +412,7 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         uint256 idIn,
         address to
     ) internal returns (uint256 wId) {
-        /// @dev Check for `to` being address(0) has been handled by the Pair.
+        /// @dev Check for `to` being address(0) has been handled in the getPair().
         address pair = getPair(nftA, nftB);
         _transferNFT(nftIn, idIn, msg.sender, pair);
 
@@ -362,6 +471,8 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
             idOut,
             to
         );
+
+        emit Swapped(nftIn, idIn, nftOut, idOut);
     }
 
     /**
