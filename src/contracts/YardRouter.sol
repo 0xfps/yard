@@ -255,6 +255,45 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
     }
 
     /**
+    * @notice   Swap one NFT for another NFT in the same pool.
+    *           There are no cross pool swaps here. This function will only
+    *           handle the swaps for two NFTs. `path` would be an array of
+    *           just two elements.
+    *           The first element is the NFT that the user wishes to put into
+    *           the pool, and the second is the NFT they want to take out of the pool.
+    *
+    * @param    path    Array of NFT pools to traverse.
+    * @param    idIn    ID of NFT to go into the pool.
+    * @param    idOut   ID of NFT to leave the pool.
+    * @param    to      Address to receive NFT.
+    *
+    * @return   _idOut  ID of NFT to leave the pool.
+    */
+    function swapNFTForExactNFT(
+        IERC721[] memory path,
+        uint256 idIn,
+        uint256 idOut,
+        address to
+    ) external returns (uint256 _idOut) {
+        if (path.length != 2) revert("YARD: PATH_MUST_BE_TWO");
+
+        /// @dev Direct swap.
+        (bool pairExists, address pair) = _pairExists(path[0], path[1]);
+        if (!pairExists) revert("YARD: PAIR_INEXISTENT");
+
+        _idOut = _swap(
+            pair,
+            path[0],
+            idIn,
+            path[1],
+            idOut,
+            to
+        );
+
+        emit Swapped(path[0], idIn, path[1], idOut);
+    }
+
+    /**
     * @dev Refer to `addLiquidity()`
     */
     function _addLiquidity(
@@ -301,6 +340,42 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         );
 
         emit LiquidityRemoved(nftOut, _idOut);
+    }
+
+    /**
+    * @dev Underlying swap functionality.
+    */
+    function _swap(
+        address pair,
+        IERC721 nftIn,
+        uint256 idIn,
+        IERC721 nftOut,
+        uint256 idOut,
+        address to
+    ) internal returns (uint256 _idOut) {
+        _transferNFT(nftIn, idIn, msg.sender, pair);
+
+        _idOut = IYardPair(pair).swap(
+            nftIn,
+            idIn,
+            nftOut,
+            idOut,
+            to
+        );
+    }
+
+    /**
+    * @notice   Returns true and the address of a pair if it exists in the Factory, and
+    *           false and address(0) if it doesn't.
+    *
+    * @param    nftA Address of first NFT.
+    * @param    nftB Address of second NFT.
+    *
+    * @return   (bool, address) Existence truthiness and pair address or address(0).
+    */
+    function _pairExists(IERC721 nftA, IERC721 nftB) internal view returns (bool, address) {
+        address pair = getPair(nftA, nftB);
+        return pair != address(0) ? (true, pair) : (false, address(0));
     }
 
     /**

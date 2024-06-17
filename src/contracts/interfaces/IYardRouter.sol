@@ -85,6 +85,7 @@ interface IYardRouter {
     ) external returns (uint256 _idOut);
 
     /// @dev Swap a group of `idsIn` for `idsOut` in a pair and send them to `to`.
+    /// @dev Reminder to swap inside one pool, the path will be passed repeatedly [A, B, A, B]
     function swapBatchNFTsForExactNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
