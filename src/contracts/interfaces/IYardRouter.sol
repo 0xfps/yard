@@ -13,9 +13,8 @@ interface IYardRouter {
     event BatchLiquidityAdded(IERC721 indexed nftIn, uint256[] idsIn);
     event BatchLiquidityRemoved(IERC721 indexed nftOut, uint256[] idsOut);
     event BatchSwapped(
-        IERC721 indexed nftIn,
+        IERC721[] path,
         uint256[] idsIn,
-        IERC721 indexed nftOut,
         uint256[] idsOut
     );
     event LiquidityAdded(IERC721 indexed nftIn, uint256 indexed idIn);
@@ -85,7 +84,7 @@ interface IYardRouter {
     ) external returns (uint256 _idOut);
 
     /// @dev Swap a group of `idsIn` for `idsOut` in a pair and send them to `to`.
-    /// @dev Reminder to swap inside one pool, the path will be passed repeatedly [A, B, A, B]
+    /// @dev Reminder to swap inside one pool, the path will be passed repeatedly [A, B, A, B].
     function swapBatchNFTsForExactNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
@@ -98,20 +97,19 @@ interface IYardRouter {
         IERC721[] memory path,
         uint256 idIn,
         address to
-    ) external returns (uint256 _idOut);
+    ) external returns (uint256 idOut);
 
     /// @dev Swap a group of `idsIn` for random NFTs in a pair and send them to `to`.
     function swapBatchNFTsForArbitraryNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
         address to
-    ) external returns (uint256[] memory _idsOut);
+    ) external returns (uint256[] memory idsOut);
 
     /// @dev Take rewards for `msg.sender` in the pair.
     function takeRewards(
         IERC721 nftA,
-        IERC721 nftB,
-        address to
+        IERC721 nftB
     ) external returns (uint256);
 
     /// @dev Returns a tuple of the number of NFTs, nftA and nftB in a pair.
@@ -134,7 +132,6 @@ interface IYardRouter {
     function precalculateOutputNFT(
         IERC721 nftA,
         IERC721 nftB,
-        IERC721 nftIn,
-        uint256 idIn
+        IERC721 nftIn
     ) external view returns (uint256 idOut);
 }
