@@ -21,7 +21,7 @@ import { YardFeeRange } from "./utils/YardFeeRange.sol";
 *           and claims of pool rewards are also initiated here.
 */
 
-abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
+contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
     /// @dev Default fee, presumably stable token, $0.3.
     uint32 public constant DEFAULT_FEE = 3e5;
     /// @dev Fee token address.
@@ -30,6 +30,17 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
     address public immutable YARD_WRAPPER;
     /// @dev YardFactory interface instance.
     IYardFactory public FACTORY;
+
+    /// @dev Reentrancy guard.
+    bool internal isLocked;
+
+    /// @dev Reentrancy guard.
+    modifier lock() {
+        if (isLocked) revert("YARD: TRANSACTION_LOCKED");
+        isLocked = true;
+        _;
+        isLocked = false;
+    }
 
     constructor(address feeToken, address yardWrapper) {
         FEE_TOKEN = feeToken;
@@ -154,7 +165,7 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         uint256 idOut,
         uint256 wId,
         address to
-    ) public returns (uint256 _idOut) {
+    ) public lock returns (uint256 _idOut) {
         /// @dev Check validity of liquidity data.
         _checkValidity(nftA, nftB, nftOut);
 
@@ -189,7 +200,7 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         uint256[] memory idsOut,
         uint256[] memory wIds,
         address to
-    ) public returns (uint256[] memory _idsOut) {
+    ) public lock returns (uint256[] memory _idsOut) {
         /// @dev Check validity of liquidity data.
         _checkValidity(nftA, nftB, nftOut);
 
@@ -276,7 +287,7 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         uint256 idIn,
         uint256 idOut,
         address to
-    ) public returns (uint256 _idOut) {
+    ) public lock returns (uint256 _idOut) {
         if (path.length != 2) revert("YARD: PATH_MUST_BE_TWO");
 
         /// @dev Direct swap.
@@ -292,13 +303,55 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
             to
         );
     }
-    
+
+    function swapExactNFTsForExactNFTsAcrossPools(
+        IERC721[] memory path,
+        uint256 idIn,
+        uint256[] memory idsOut,
+        address to
+    ) public lock returns (uint256) {
+        if (path.length != 2) revert("YARD: PATH_MUST_BE_AT_LEAST_TWO");
+        if (idsOut.length != (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
+        if (to == address(0)) revert("YARD: ZERO_RECIPIENT_ADDRESS");
+
+        uint256 idOut;
+
+        for (uint256 i; i < path.length - 1; i++) {
+            IERC721[] memory _path = new IERC721[](2);
+            _path[0] = path[i];
+            _path[1] = path[i + 1];
+
+            if (i == 0) {
+                /// Send first NFT from user to pair.
+                idOut = swapNFTForExactNFT(_path, idIn, idsOut[0], address(this));
+            } else {
+                (bool pairExists, address pair) = _pairExists(_path[0], _path[1]);
+                if (!pairExists) revert("YARD: PAIR_INEXISTENT");
+
+                _transferNFT(path[i], idsOut[i], address(this), pair);
+                idOut = IYardPair(pair).swap(
+                    path[i],
+                    idsOut[i],
+                    path[i + 1],
+                    idsOut[i + 1],
+                    address(this)
+                );
+
+                emit Swapped(path[i], idsOut[i], path[i + 1], idOut);
+            }
+        }
+
+        IERC721(path[path.length - 1]).safeTransferFrom(address(this), to, idOut);
+
+        return idOut;
+    }
+
     function swapBatchNFTsForExactNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
         uint256[] memory idsOut,
         address to
-    ) public returns (uint256[] memory _idsOut) {
+    ) public lock returns (uint256[] memory _idsOut) {
         if (path.length < 2) revert("YARD: INVALID_PATH_LENGTH");
         if (idsIn.length != (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
         if (idsIn.length != idsOut.length) revert("YARD: LENGTH_MISMATCH");
@@ -324,12 +377,8 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         IERC721[] memory path,
         uint256 idIn,
         address to
-    ) public returns (uint256 idOut) {
+    ) public lock returns (uint256 idOut) {
         if (path.length != 2) revert("YARD: PATH_MUST_BE_TWO");
-
-        /// @dev Direct swap.
-        (bool pairExists, ) = _pairExists(path[0], path[1]);
-        if (!pairExists) revert("YARD: PAIR_INEXISTENT");
 
         idOut = precalculateOutputNFT(path[0], path[1], path[0]);
         idOut = swapNFTForExactNFT(path, idIn, idOut, to);
@@ -339,7 +388,7 @@ abstract contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         IERC721[] memory path,
         uint256[] memory idsIn,
         address to
-    ) public returns (uint256[] memory idsOut) {
+    ) public lock returns (uint256[] memory idsOut) {
         if (path.length < 2) revert("YARD: INVALID_PATH_LENGTH");
         if (idsIn.length != (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
 

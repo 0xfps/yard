@@ -83,6 +83,14 @@ interface IYardRouter {
         address to
     ) external returns (uint256 _idOut);
 
+    /// @dev Swap one NFT for another NFT and journey across the path.
+    function swapExactNFTsForExactNFTsAcrossPools(
+        IERC721[] memory path,
+        uint256 idIn,
+        uint256[] memory idsOut,
+        address to
+    ) external returns (uint256);
+
     /// @dev Swap a group of `idsIn` for `idsOut` in a pair and send them to `to`.
     /// @dev Reminder to swap inside one pool, the path will be passed repeatedly [A, B, A, B].
     function swapBatchNFTsForExactNFTs(
