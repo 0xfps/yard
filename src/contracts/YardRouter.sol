@@ -304,6 +304,16 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         );
     }
 
+    /**
+    * @dev      Swap some NFTs for another set of  NFTs accross specified pools.
+    *
+    * @param    path    NFT path to follow.
+    * @param    idIn    NFTs to send in to the pair.
+    * @param    idsOut  NFTs to send in to the router.
+    * @param    to      Address to receive the final NFT.
+    *
+    * @return   uint256 Final NFT ID.
+    */
     function swapExactNFTsForExactNFTsAcrossPools(
         IERC721[] memory path,
         uint256 idIn,
@@ -346,6 +356,21 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         return idOut;
     }
 
+    /**
+    * @notice   Swap a group NFT for another group NFT in the same pool.
+    *           There are no cross pool swaps here. This function will only
+    *           handle the swaps for two NFTs. `path` would be an array of
+    *           just two elements.
+    *           The first element is the NFT that the user wishes to put into
+    *           the pool, and the second is the NFT they want to take out of the pool.
+    *
+    * @param    path    Array of NFT pools to traverse.
+    * @param    idsIn   IDs of NFT to go into the pool.
+    * @param    idsOut  IDs of NFT to leave the pool.
+    * @param    to      Address to receive NFT.
+    *
+    * @return   _idsOut IDs of NFT to leave the pool.
+    */
     function swapBatchNFTsForExactNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
@@ -373,6 +398,15 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         );
     }
 
+    /**
+    * @dev      Swaps an NFT for a random NFT in a pool.
+    *
+    * @param    path    NFT path to follow.
+    * @param    idIn    NFTs to send in to the pair.
+    * @param    to      Address to receive each output NFT.
+    *
+    * @return   idOut   Array of IDs received from the pool.
+    */
     function swapNFTForArbitraryNFT(
         IERC721[] memory path,
         uint256 idIn,
@@ -384,6 +418,15 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         idOut = swapNFTForExactNFT(path, idIn, idOut, to);
     }
 
+    /**
+    * @dev      Swaps a couple of NFTs for random NFTs in a pool.
+    *
+    * @param    path    NFT path to follow.
+    * @param    idsIn   Array of NFTs to send in to the pair.
+    * @param    to      Address to receive each output NFT.
+    *
+    * @return   idsOut  Array of IDs received from the pool.
+    */
     function swapBatchNFTsForArbitraryNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
@@ -404,6 +447,14 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         }
     }
 
+    /**
+    * @dev      Take all claimable rewards for `msg.sender`.
+    *
+    * @param    nftA    Address of one NFT in the pair.
+    * @param    nftB    Address of pair NFT.
+    *
+    * @return   uint256 Amount withdrawn.
+    */
     function takeRewards(
         IERC721 nftA,
         IERC721 nftB
@@ -414,6 +465,14 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         return IYardPair(pair).claimRewards(msg.sender);
     }
 
+    /**
+    * @dev      Return the supply of nftA and nftB in the pool respectively.
+    *
+    * @param    nftA                Address of one NFT in the pair.
+    * @param    nftB                Address of pair NFT.
+    *
+    * @return   uint256, uint256    Supply of NFT A and NFT B in the pool.
+    */
     function viewAllReserves(IERC721 nftA, IERC721 nftB)
         public
         view
@@ -425,6 +484,15 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         return IYardPair(pair).getAllReserves();
     }
 
+    /**
+    * @dev      Return how much rewards `lpProvider` is entitled to.
+    *
+    * @param    nftA        Address of one NFT in the pair.
+    * @param    nftB        Address of pair NFT.
+    * @param    lpProvider  Address of liquidity provider.
+    *
+    * @return   uint256     Amount of stable token receivable by lpProvider.
+    */
     function getRewards(
         IERC721 nftA,
         IERC721 nftB,
@@ -436,17 +504,30 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         return IYardPair(pair).calculateRewards(lpProvider);
     }
 
+    /**
+    * @dev      Using the random() function in the Math library, this function will
+    *           return the index of an NFT that lies between 0 to the number one short
+    *           of the total supply of the nft to be taken out.
+    *
+    * @param    nftA    Address of one NFT in the pair.
+    * @param    nftB    Address of pair NFT.
+    * @param    nftIn   Address of input NFT.
+    *
+    * @return   idOut   ID of nftOut the user will receive.
+    */
     function precalculateOutputNFT(
         IERC721 nftA,
         IERC721 nftB,
         IERC721 nftIn
     ) public view returns (uint256 idOut) {
         _checkValidity(nftA, nftB, nftIn);
+        IERC721 nftOut = nftIn == nftA ? nftB : nftA;
         (bool pairExists, address pair) = _pairExists(nftA, nftB);
         if (!pairExists) revert("YARD: PAIR_INEXISTENT");
 
         /// @dev supply == supplyArray.length
-        (uint256 supply, uint256[] memory supplyArray) = IYardPair(pair).getReservesFor(nftIn);
+        (uint256 supply, uint256[] memory supplyArray) = IYardPair(pair).getReservesFor(nftOut);
+        if (supply == 0) revert("YARD: ZERO_LIQUIDITY_FOR_OUTPUT_NFT");
         uint256 randomIndex = Math.random(supply);
         return supplyArray[randomIndex];
     }
