@@ -350,6 +350,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
                     idsOut[i],
                     path[i + 1],
                     idsOut[i + 1],
+                    msg.sender,
                     address(this)
                 );
 
@@ -605,6 +606,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
             idIn,
             nftOut,
             idOut,
+            msg.sender,
             to
         );
 

@@ -14,12 +14,14 @@ import { YardFee } from "./utils/YardFee.sol";
 /**
 * @title    YardPair
 * @author   fps (@0xfps).
-* @dev      YardPair, (just like UniswapPair) is a contract that holds all NFTs that are swappable.
+* @dev      YardPair, is a contract that holds all NFTs that are swappable.
 *           This can also be called a pool. The idea is that swaps would be instant as long as the
 *           ID of the NFT to be swapped to is available in this pair contract. And to top it off,
 *           this contract will charge fees on swap, set and adjustable by the pool owner. These
 *           fees are accumulated and distributed among liquidity providers according to your pool
 *           NFT share.
+*           The only flaw that this introduces it that, due to the 1:1 swap system, it automatically
+*           makes every NFT of the same value, regardless of rarity.
 */
 
 contract YardPair is IERC721Receiver, IYardPair, YardFee {
@@ -116,6 +118,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
     * @param nftA           First NFT of pool pair.
     * @param nftB           Second NFT of pool pair.
     * @param _router        Address of YardRouter.
+    * @param _factory       Address of YardFactory.
     * @param _pairOwner     Pool owner.
     * @param _fee           Fee amount, it can be 0.1, 0.3 or 0.5.
     * @param _feeToken      Address of fee token, a stable coin.
@@ -125,13 +128,15 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         IERC721 nftA,
         IERC721 nftB,
         address _router,
+        address _factory,
         address _pairOwner,
         uint256 _fee,
         address _feeToken,
         address _yardWrapper
     ) YardFee(_pairOwner, _fee) {
-        // @reminder Assert nftA != nftB in YardFactory.
+        /// @notice nftA != nftB will be validated in `YardFactory`.
         router = _router;
+        factory = _factory;
         feeToken = IERC20(_feeToken);
         YARD_WRAPPER = _yardWrapper;
         yardWrapper = IYardNFTWrapper(_yardWrapper);
@@ -251,6 +256,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
     * @param    idIn    ID of NFT swapping in.
     * @param    nftOut  Address of NFT swapping out, one of the two in the pair.
     * @param    idOut   ID of NFT swapping out.
+    * @param    payer   Address to pay fees for swap.
     * @param    to      Address to receive NFT.
     */
     function swap(
@@ -258,6 +264,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         uint256 idIn,
         IERC721 nftOut,
         uint256 idOut,
+        address payer,
         address to
     )
         external
@@ -265,17 +272,17 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         onlyRouter
         returns (uint256 _idOut)
     {
-        if (IERC721(nftIn).ownerOf(idIn) != address(this)) revert("YARD: NFT_NOT_OWNED_BY_POOL");
+        if (IERC721(nftIn).ownerOf(idIn) != address(this)) revert("YARD: NFT_IN_NOT_OWNED_BY_POOL");
 
         (uint256 reserve, ) = getReservesFor(nftOut);
 
         if (reserve == 0) revert("YARD: ZERO_LIQUIDITY");
         if (!inPool[nftOut][idOut]) revert("YARD: NFT_NOT_IN_POOL");
-        if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_CANT_BE_SENT_TO_POOL");
+        if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_OUT_NOT_OWNED_BY_POOL");
         if (to == address(0)) revert("YARD: ZERO_ADDRESS");
 
-        /// @notice Whoever is receiving NFT pays for it.
-        feeToken.transferFrom(to, address(this), swapFee);
+        /// @notice Address swapping pays fees.
+        feeToken.transferFrom(payer, address(this), swapFee);
 
         _balancePoolReserves(nftOut, idOut);
         _updatePoolReserves(nftIn, idIn);

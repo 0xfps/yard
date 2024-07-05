@@ -107,6 +107,7 @@ contract YardFactory is IERC721Receiver, IYardFactory, Ownable2Step {
                     nftA,
                     nftB,
                     ROUTER,
+                    address(this),
                     _pairOwner,
                     _fee,
                     _feeToken,
