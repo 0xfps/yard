@@ -27,7 +27,7 @@ interface IYardRouter {
         uint256 idOut
     );
 
-    /// @dev Add liquidity of a single NFT to a pool.
+    /// @dev Add liquidity with a single NFT to a pool.
     function addLiquidity(
         IERC721 nftA,
         IERC721 nftB,
@@ -36,7 +36,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256 wId);
 
-    /// @dev Add liquidity for a group of NFTs to a pool.
+    /// @dev Add liquidity with a batch of NFTs to a pool.
     function addBatchLiquidity(
         IERC721 nftA,
         IERC721 nftB,
@@ -55,7 +55,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256 _idOut);
 
-    /// @dev Remove liquidity for a group of NFTs in a pool.
+    /// @dev Remove liquidity for a batch of NFTs in a pool.
     function removeBatchLiquidity(
         IERC721 nftA,
         IERC721 nftB,
@@ -65,7 +65,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256[] memory _idsOut);
 
-    /// @dev Deploys a new `YardPair` contract by calling the `YardFactory`.
+    /// @dev Deploys a new `YardPair` contract.
     function createPair(
         IERC721 nftA,
         uint256[] memory idsA,
@@ -75,7 +75,7 @@ interface IYardRouter {
         address to
     ) external returns (address pair);
 
-    /// @dev Swap one `idIn` for `idOut` in a pair and send them to `to`.
+    /// @dev Swap one `idIn` for `idOut` in a pair and send it to `to`.
     function swapNFTForExactNFT(
         IERC721[] memory path,
         uint256 idIn,
@@ -83,7 +83,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256 _idOut);
 
-    /// @dev Swap one NFT for another NFT and journey across the path.
+    /// @dev Swap an NFT in a pool for another in another pool across the `path`.
     function swapExactNFTsForExactNFTsAcrossPools(
         IERC721[] memory path,
         uint256 idIn,
@@ -92,7 +92,6 @@ interface IYardRouter {
     ) external returns (uint256);
 
     /// @dev Swap a group of `idsIn` for `idsOut` in a pair and send them to `to`.
-    /// @dev Reminder to swap inside one pool, the path will be passed repeatedly [A, B, A, B].
     function swapBatchNFTsForExactNFTs(
         IERC721[] memory path,
         uint256[] memory idsIn,
@@ -100,7 +99,7 @@ interface IYardRouter {
         address to
     ) external returns (uint256[] memory _idsOut);
 
-    /// @dev Swap one `idIn` for a random NFT in a pair and send them to `to`.
+    /// @dev Swap one `idIn` for a random NFT in a pair and send it to `to`.
     function swapNFTForArbitraryNFT(
         IERC721[] memory path,
         uint256 idIn,
@@ -120,13 +119,13 @@ interface IYardRouter {
         IERC721 nftB
     ) external returns (uint256);
 
-    /// @dev Returns a tuple of the number of NFTs, nftA and nftB in a pair.
+    /// @dev Returns a tuple of the number of NFTs, `nftA` and `nftB` in a pair.
     function viewAllReserves(IERC721 nftA, IERC721 nftB)
         external
         view
         returns (uint256, uint256);
 
-    /// @dev Return the address of the `YardPair` contract for [nftA][nftB].
+    /// @dev Return the address of the `YardPair` contract containing `nftA` and `nftB`.
     function getPair(IERC721 nftA, IERC721 nftB) external view returns (address pair);
 
     /// @dev Calculate and return rewards claimable by `lpProvider`.
@@ -136,7 +135,9 @@ interface IYardRouter {
         address lpProvider
     ) external view returns (uint256);
 
-    /// @dev Return the NFT ID that will be swapped when an arbitrary swap is carried out.
+    /// @dev    Return the NFT ID that will be swapped when
+    ///         `swapNFTForArbitraryNFT` or `swapBatchNFTsForArbitraryNFTs`
+    ///         swap is carried out.
     function precalculateOutputNFT(
         IERC721 nftA,
         IERC721 nftB,

@@ -37,12 +37,13 @@ interface IYardPair {
         address to
     ) external returns (uint256 _idOut);
 
-    /// @dev Swap an `nftIn` for `nftOut` in a pool.
+    /// @dev Swap one NFT id of `nftIn` for `nftOut` in a pool.
     function swap(
         IERC721 nftIn,
         uint256 idIn,
         IERC721 nftOut,
         uint256 idOut,
+        address payer,
         address to
     ) external returns (uint256 _idOut);
 

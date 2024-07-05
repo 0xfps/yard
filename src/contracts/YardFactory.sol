@@ -2,11 +2,13 @@
 pragma solidity ^0.8.0;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import { IYardFactory } from "./interfaces/IYardFactory.sol";
 import { IYardPair } from "./interfaces/IYardPair.sol";
 
 import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
+import { YardNFTWrapper } from "./utils/YardNFTWrapper.sol";
 import { YardPair } from "./YardPair.sol";
 
 /**
@@ -16,9 +18,11 @@ import { YardPair } from "./YardPair.sol";
 *           and keep record of deployed pair addresses.
 */
 
-contract YardFactory is IYardFactory, Ownable2Step {
+contract YardFactory is IERC721Receiver, IYardFactory, Ownable2Step {
     /// @dev Router address.
     address public ROUTER;
+    /// @dev Address of YardNFTWrapper.
+    address public YARD_WRAPPER;
     /// @dev Number of pools created.
     uint256 public poolCount;
 
@@ -31,17 +35,27 @@ contract YardFactory is IYardFactory, Ownable2Step {
     }
 
     /**
-    * @dev              Set router address and revoke ownership of Factory.
-    *                   Router can only be set once meaning that on first setting,
-    *                   ROUTER is address(0). And after setting, ownership is revoked,
-    *                   ensuring that ROUTER cannot be reset again.
+    * @dev      Set router address and revoke ownership of Factory.
+    *           Router can only be set once meaning that on first setting,
+    *           ROUTER is address(0). And after setting, ownership is revoked,
+    *           ensuring that ROUTER cannot be reset again.
     *
-    * @param router     Address of router.
+    * @param    router Address of router.
     */
     function setRouter(address router) public onlyOwner {
         if (router == address(0)) revert("YARD: ROUTER_IS_ZERO_ADDRESS");
         ROUTER = router;
         Ownable._transferOwnership(address(0));
+    }
+
+    /**
+    * @dev      YardWrapper address.
+    *
+    * @param    wrapper Address of wrapper.
+    */
+    function setWrapper(address wrapper) public onlyOwner {
+        if (wrapper == address(0)) revert("YARD: ROUTER_IS_ZERO_ADDRESS");
+        YARD_WRAPPER = wrapper;
     }
 
     /// @dev    Return the address of the `YardPair` contract for [nftA][nftB].
@@ -56,6 +70,7 @@ contract YardFactory is IYardFactory, Ownable2Step {
     *           `_pairOwner`, and sent to the Router. The Router transfers
     *           all NFT(s) to the Factory, which finally sends them to the
     *           Pair.
+    *
     * @notice   All checks are done on the Router.
     *
     * @param    nftA            Address of first NFT.
@@ -92,6 +107,7 @@ contract YardFactory is IYardFactory, Ownable2Step {
                     nftA,
                     nftB,
                     ROUTER,
+                    address(this),
                     _pairOwner,
                     _fee,
                     _feeToken,
@@ -104,6 +120,8 @@ contract YardFactory is IYardFactory, Ownable2Step {
             pairs[address(nftA)][address(nftB)] = pair;
             pairs[address(nftB)][address(nftA)] = pair;
             ++poolCount;
+
+            YardNFTWrapper(YARD_WRAPPER).addPair(pair);
             emit PairCreated(nftA, nftB, pair);
         }
     }
@@ -136,14 +154,12 @@ contract YardFactory is IYardFactory, Ownable2Step {
             nftA.safeTransferFrom(address(this), _pair, idsA[i]);
             nftB.safeTransferFrom(address(this), _pair, idsB[i]);
 
-
             IYardPair(_pair).addLiquidity(
                 nftA,
                 idsA[i],
                 _pairOwner,
                 _to
             );
-
 
             IYardPair(_pair).addLiquidity(
                 nftB,
@@ -152,6 +168,19 @@ contract YardFactory is IYardFactory, Ownable2Step {
                 _to
             );
         }
+    }
+
+    /// @dev    OpenZeppelin requirement for NFT receptions.
+    /// @return bytes4  bytes4(keccak256(
+    ///                     onERC721Received(address,address,uint256,bytes)
+    ///                 )) => 0x150b7a02.
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure returns (bytes4) {
+        return 0x150b7a02;
     }
 }
 
