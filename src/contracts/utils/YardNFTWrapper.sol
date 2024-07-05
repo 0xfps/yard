@@ -10,16 +10,24 @@ import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 /**
  * @title   YardNFTWrapper
  * @author  sagetony224 (@sagetony224).
- * @dev     A Yard NFT Wrapper contract.
+ * @dev     Yard NFT Wrapper contract.
  * @notice  The Yard NFT Wrapper has a singular function of wrapping NFTs
- *          by keeping their URIs intact and sending that to specific addresses.
- *          Override ERC-721 `approve()`.
- *          Override ERC-721 `tokenURI().`
- *          Override ERC-721 `transferFrom()`.
- *          Override ERC-721 `safeTransferFrom()`.
- *          Override ERC-721 `safeTransferFrom()`.
- *          NFTs cannot be transferred until they're `release()`d.
- *          All functions here except `getOwner()` will be callable only by the `YardPair`.
+ *          by keeping their URI Metadata intact and minting an NFT with the same
+ *          URI to a specific addresses. NFTs minted to addresses are non-transferable
+ *          and non-approvable. This is because they represent proofs of liquidity provision
+ *          in a particular pair contract. If the owner of a newly minted Yard wrapped NFT
+ *          decides to remove liquidity, the underlying NFT that the wrapped entity represents
+ *          is sent back to the owner if it still exists in the pool, and the wrapped NFT is
+ *          burned. If the underlying NFT is no longer existent in the pool in the expectation that,
+ *          it has been swapped and removed from the pool, then the wrapped
+ *          NFT is released by calling the release() function, callable only by an approved pair
+ *          contract address. The released NFT can then be treated like any normal NFT.
+ *
+ *          This introduces a flaw to the design of Yard, being that NFTs are always duplicated when wrapped
+ *          as a result of liquidity provision, and on the edge case of having the released wrapped NFTs
+ *          have pairs with other NFTs, it implies that on provision of liquidity with a
+ *          wrapped Yard NFT, the already wrapped Yard NFT will be re-wrapped again, and again
+ *          and probably, again, as long as subsequent wrapped NFTs have their own pair.
  */
 
 contract YardNFTWrapper is IYardNFTWrapper, ERC721, Ownable2Step {
@@ -28,7 +36,7 @@ contract YardNFTWrapper is IYardNFTWrapper, ERC721, Ownable2Step {
     /// @dev `YardFactory` address.
     address public factory;
 
-    /// @dev A storage for the respective URIs for the ID to the underlying NFTs.
+    /// @dev A mapping of YardWrapped NFT IDs to their underlying NFT token URIs.
     mapping(uint256 id => string URI) public tokenURIs;
     /// @dev    Mapping of NFT ID to their release status.
     /// @notice NFT IDs that are not released cannot be approved or transferred.
@@ -86,9 +94,9 @@ contract YardNFTWrapper is IYardNFTWrapper, ERC721, Ownable2Step {
     *           made to retrieve the URI of the wrapped token, the URI of the
     *           underlying token is returned.
     *
-    * @param    id         ID of token.
+    * @param    id ID of token.
     *
-    * @return   string    URI of ID.
+    * @return   string URI of ID.
     */
     function tokenURI(uint256 id) public view override returns (string memory) {
         return tokenURIs[id];
@@ -167,7 +175,7 @@ contract YardNFTWrapper is IYardNFTWrapper, ERC721, Ownable2Step {
     * @dev      Unwrap an NFT by burning the NFT. The underlying NFT transfer is
     *           done by the Pair.
     *
-    * @param    id  ID of NFT to unwrap.
+    * @param    id ID of NFT to unwrap.
     *
     * @return   bool Unwrapped status.
     */

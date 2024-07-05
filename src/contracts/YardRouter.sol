@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import { IYardFactory } from "./interfaces/IYardFactory.sol";
 import { IYardPair } from "./interfaces/IYardPair.sol";
 import { IYardRouter } from "./interfaces/IYardRouter.sol";
@@ -21,7 +22,7 @@ import { YardFeeRange } from "./utils/YardFeeRange.sol";
 *           and claims of pool rewards are also initiated here.
 */
 
-contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
+contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step {
     /// @dev Default fee, presumably stable token, $0.3.
     uint32 public constant DEFAULT_FEE = 3e5;
     /// @dev Fee token address.
@@ -253,6 +254,11 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
         if (to == address(0)) revert("YARD: ZERO_TO_ADDRESS");
 
         if (!feeIsSettable(fee)) revert("YARD: FEE_NOT_SETTABLE_CHOOSE_EITHER_0.1_0.3_0.5_*1E6");
+
+        for (uint256 i; i < idsA.length; i++) {
+            _transferNFT(nftA, idsA[i], address(this), address(FACTORY));
+            _transferNFT(nftB, idsB[i], address(this), address(FACTORY));
+        }
 
         pair = FACTORY.createPair(
             nftA,
@@ -647,5 +653,18 @@ contract YardRouter is IYardRouter, YardFeeRange, Ownable2Step {
     */
     function _transferNFT(IERC721 nft, uint256 id, address from, address to) internal {
         nft.safeTransferFrom(from, to, id, "");
+    }
+
+    /// @dev    OpenZeppelin requirement for NFT receptions.
+    /// @return bytes4  bytes4(keccak256(
+    ///                     onERC721Received(address,address,uint256,bytes)
+    ///                 )) => 0x150b7a02.
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure returns (bytes4) {
+        return 0x150b7a02;
     }
 }

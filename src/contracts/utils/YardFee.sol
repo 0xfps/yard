@@ -9,7 +9,11 @@ import { YardFeeRange } from "./YardFeeRange.sol";
 /**
 * @title    YardFee
 * @author   fps (@0xfps).
-* @dev      An adjustable fee contract guarded by a Timelock.
+* @dev      An adjustable fee contract for every YardPair guarded by a Timelock.
+*           Swaps on Yard were designed to charge a tiny amount of fees as
+*           rewards to NFT liquidity providers. Fees are changed by the pool owner
+*           and take effect after 1 week. The default fee is 1e5 or 100,000, or,
+*           10 cents.
 */
 
 contract YardFee is IYardFee, YardFeeRange, Ownable2Step {
@@ -55,7 +59,7 @@ contract YardFee is IYardFee, YardFeeRange, Ownable2Step {
 
     /// @dev Allows only contract owner to delete fees.
     function deleteFee() public onlyOwner {
-        queueFeeChange(1e5); // Default fee.
+        queueFeeChange(TEN_CENTS);
     }
 
     /**

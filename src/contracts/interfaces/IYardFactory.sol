@@ -13,11 +13,11 @@ interface IYardFactory {
     event PairCreated(IERC721 nftA, IERC721 nftB, address indexed pair);
 
     /// @dev    Returns how many pools the factory has deployed.
-    /// @return count Count.
+    /// @return count Number of pools.
     function poolCount() external view returns (uint256 count);
 
     /// @dev    Deploys a new `YardPair` contract.
-    /// @return pair Address of new pair.
+    /// @return pair Address of new pair contract.
     function createPair(
         IERC721 nftA,
         uint256[] memory idsA,
@@ -30,7 +30,7 @@ interface IYardFactory {
         address _to
     ) external returns (address pair);
 
-    /// @dev    Return the address of the `YardPair` contract for [nftA][nftB].
-    /// @return pair Address of pair for `nftA` and `nftB`.
+    /// @dev    Return the address of the `YardPair` contract containing `nftA` and `nftB`.
+    /// @return pair Address of pair contract for `nftA` and `nftB`.
     function getPair(IERC721 nftA, IERC721 nftB) external view returns (address pair);
 }

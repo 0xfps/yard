@@ -155,7 +155,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         address to
     )
         external
-        onlyRouter
+        onlyFactoryOrRouter
         returns (uint256 wId)
     {
         if ((nftIn != nft0) && (nftIn != nft1)) revert("YARD: NON_POOL_NFT");
