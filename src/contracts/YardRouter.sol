@@ -16,15 +16,19 @@ import { YardFeeRange } from "./utils/YardFeeRange.sol";
 /**
 * @title    YardRouter
 * @author   fps (@0xfps).
-* @dev      YardRouter, this contract is the control center for the Yard protocol.
-*           Interactions with specific pairs are done from this contract. Creation and
-*           provision of liquidity are also handled here. To top it off, the withdrawals
-*           and claims of pool rewards are also initiated here.
+* @dev      YardRouter, this contract is the interaction center for Yard. Interactions
+*           between pools are done from the Router.
+*
+*           To swap between two pools, a user passed a `path`. A `path` is an array of
+*           NFT addresses that are paired in twos recursively, meaning that, for a path
+*           we will assume to be [A, B, C, D, E, F, G, H], across different NFT pairs,
+*           the swap will be carried out across `<array>.length - 1` pools. To list them,
+*           A-B, B-C, C-D, D-E, E-F, F-G, G-H.
 */
 
 contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step {
-    /// @dev Default fee, presumably stable token, $0.3.
-    uint32 public constant DEFAULT_FEE = 3e5;
+    /// @dev Default fee, presumably stable token, $0.1.
+    uint32 public constant DEFAULT_FEE = TEN_CENTS;
     /// @dev Fee token address.
     address public immutable FEE_TOKEN;
     /// @dev YardWrapper contract address.
@@ -311,7 +315,10 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
     }
 
     /**
-    * @dev      Swap some NFTs for another set of  NFTs accross specified pools.
+    * @dev      Swap some NFTs for another set of  NFTs across specified pools.
+    *           One NFT is swapped in to the first pair and the output is swapped
+    *           into the second pair. The process continues until the last NFT is
+    *           swapped out. Then sent to `to`.
     *
     * @param    path    NFT path to follow.
     * @param    idIn    NFTs to send in to the pair.
@@ -326,7 +333,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
         uint256[] memory idsOut,
         address to
     ) public lock returns (uint256) {
-        if (path.length != 2) revert("YARD: PATH_MUST_BE_AT_LEAST_TWO");
+        if (path.length < 2) revert("YARD: PATH_MUST_BE_AT_LEAST_TWO");
         if (idsOut.length != (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
         if (to == address(0)) revert("YARD: ZERO_RECIPIENT_ADDRESS");
 
@@ -384,18 +391,14 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
         uint256[] memory idsOut,
         address to
     ) public lock returns (uint256[] memory _idsOut) {
-        if (path.length < 2) revert("YARD: INVALID_PATH_LENGTH");
-        if (idsIn.length != (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
+        if (path.length != 2) revert("YARD: INVALID_PATH_LENGTH");
+        if (idsIn.length < (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
         if (idsIn.length != idsOut.length) revert("YARD: LENGTH_MISMATCH");
 
         _idsOut = new uint256[](idsIn.length);
 
-        for (uint256 i; i < path.length - 1; i++) {
-            IERC721[] memory _path = new IERC721[](2);
-            _path[0] = path[i];
-            _path[1] = path[i + 1];
-
-            _idsOut[i] = swapNFTForExactNFT(_path, idsIn[i], idsOut[i], to);
+        for (uint256 i; i < idsIn.length - 1; i++) {
+            _idsOut[i] = swapNFTForExactNFT(path, idsIn[i], idsOut[i], to);
         }
 
         emit BatchSwapped(
@@ -439,18 +442,14 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
         uint256[] memory idsIn,
         address to
     ) public lock returns (uint256[] memory idsOut) {
-        if (path.length < 2) revert("YARD: INVALID_PATH_LENGTH");
-        if (idsIn.length != (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
+        if (path.length != 2) revert("YARD: INVALID_PATH_LENGTH");
+        if (idsIn.length < (path.length - 1)) revert("YARD: INVALID_SWAP_LENGTH");
 
         idsOut = new uint256[](idsIn.length);
 
-        for (uint256 i; i < path.length - 1; i++) {
-            IERC721[] memory _path = new IERC721[](2);
-            _path[0] = path[i];
-            _path[1] = path[i + 1];
-
-            uint256 idOut = precalculateOutputNFT(path[i], path[i + 1], path[i]);
-            idsOut[i] = swapNFTForExactNFT(_path, idsIn[i], idOut, to);
+        for (uint256 i; i < idsIn.length - 1; i++) {
+            uint256 idOut = precalculateOutputNFT(path[0], path[1], path[1]);
+            idsOut[i] = swapNFTForExactNFT(path, idsIn[i], idOut, to);
         }
     }
 
