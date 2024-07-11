@@ -1,61 +1,61 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.20;
+pragma solidity ^0.8.0;
 
 import "./YardFee.t.sol";
 
 contract GetFeeTest is YardFeeTest {
     function testAfterDeployment() public {
-        assertTrue(yardFee.getFee() == 1e5);
+        assertTrue(yardFee.getFee() == fee);
     }
 
-    function testWhenQueueInProgressAfterDeploy() public {
+    function testGetFeeAfterQueue() public {
         vm.prank(owner);
-        yardFee.queueFeeChange(fee);
+        yardFee.queueFeeChange(otherFee);
 
-        assertTrue(yardFee.getFee() == 1e5);
+        assertTrue(yardFee.getFee() == fee);
     }
 
-    function testAfterQueueChange() public {
+    function testGetFeeAfterQueueAndTimeNotPassed() public {
         vm.prank(owner);
-        yardFee.queueFeeChange(fee);
+        yardFee.queueFeeChange(otherFee);
+
+        skip(5 days);
+
+        assertTrue(yardFee.getFee() == fee);
+    }
+
+    function testGetFeeAfterQueueAndTimePassed() public {
+        vm.prank(owner);
+        yardFee.queueFeeChange(otherFee);
 
         skip(11 days);
 
-        assertTrue(yardFee.getFee() == fee);
+        assertTrue(yardFee.getFee() == otherFee);
     }
 
-    function testWhenQueueInProgressAfterChange() public {
-        vm.prank(owner);
-        yardFee.queueFeeChange(fee);
-
-        skip(11 days);
-
-        assertTrue(yardFee.getFee() == fee);
-
-        vm.prank(owner);
-        yardFee.queueFeeChange(5e5);
-
-        skip(6 days);
-
-        assertTrue(yardFee.getFee() == fee);
-    }
-
-    function testWhenDeleteFee() public {
-        testAfterQueueChange();
+    function testAfterDeleteFee() public {
+        testGetFeeAfterQueueAndTimePassed();
 
         vm.prank(owner);
         yardFee.deleteFee();
-
-        skip(6 days);
-
-        assertTrue(yardFee.getFee() == fee);
+        assertTrue(yardFee.getFee() == otherFee);
     }
 
-    function testWhenDeleteFeeUpdated() public {
-        testWhenDeleteFee();
+    function testAfterDeleteFeeAndTimeNotPassed() public {
+        testGetFeeAfterQueueAndTimePassed();
 
-        skip(2 days);
+        vm.prank(owner);
+        yardFee.deleteFee();
+        skip(5 days);
+        assertTrue(yardFee.getFee() == otherFee);
+    }
 
-        assertTrue(yardFee.getFee() == 1e5);
+    function testAfterDeleteFeeAndTimePassed() public {
+        testGetFeeAfterQueueAndTimePassed();
+
+        vm.prank(owner);
+        yardFee.deleteFee();
+        skip(11 days);
+        assertTrue(yardFee.getFee() == fee);
     }
 }
