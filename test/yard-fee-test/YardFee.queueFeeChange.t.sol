@@ -1,17 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.20;
+pragma solidity ^0.8.0;
 
 import "./YardFee.t.sol";
 
 contract QueueFeeChangeTest is YardFeeTest {
-    uint32 internal constant TEN_CENTS = 1e5;
-    uint32 internal constant THIRTY_CENTS = 3e5;
-    uint32 internal constant FIFTY_CENTS = 5e5;
-
     function testQueueByNonOwner(uint256 amount) public {
         vm.expectRevert();
         vm.prank(hacker);
         yardFee.queueFeeChange(amount);
+    }
+
+    function testQueueFeeWhenNotInProgress() public {
+        vm.prank(owner);
+        yardFee.queueFeeChange(FIFTY_CENTS);
+    }
+
+    function testQueueUnsettableFeeWhenNotInProgress(uint256 _fee) public {
+        vm.assume((_fee != TEN_CENTS) && (_fee != THIRTY_CENTS) && (_fee != FIFTY_CENTS));
+        vm.expectRevert();
+        vm.prank(owner);
+        yardFee.queueFeeChange(_fee);
     }
 
     function testQueueFeeWhenInProgressAndLockNotPassed() public {
@@ -23,6 +31,18 @@ contract QueueFeeChangeTest is YardFeeTest {
         vm.expectRevert();
         vm.prank(owner);
         yardFee.queueFeeChange(THIRTY_CENTS);
+    }
+
+    function testQueueUnsettableFeeWhenInProgressAndLockNotPassed(uint256 _fee) public {
+        vm.assume((_fee != TEN_CENTS) && (_fee != THIRTY_CENTS) && (_fee != FIFTY_CENTS));
+        vm.prank(owner);
+        yardFee.queueFeeChange(FIFTY_CENTS);
+
+        skip(3 days);
+
+        vm.expectRevert();
+        vm.prank(owner);
+        yardFee.queueFeeChange(_fee);
     }
 
     function testQueueFeeWhenInProgressAndLockPassed() public {
@@ -41,11 +61,17 @@ contract QueueFeeChangeTest is YardFeeTest {
         assertEq(yardFee.getFee(), THIRTY_CENTS);
     }
 
-    function feeIsSettable(uint256 _fee) public pure returns (bool) {
-        return (
-            _fee == TEN_CENTS ||
-            _fee == THIRTY_CENTS ||
-            _fee == FIFTY_CENTS
-        );
+    function testQueueUnsettableFeeWhenInProgressAndLockPassed(uint256 _fee) public {
+        vm.assume((_fee != TEN_CENTS) && (_fee != THIRTY_CENTS) && (_fee != FIFTY_CENTS));
+        vm.prank(owner);
+        yardFee.queueFeeChange(FIFTY_CENTS);
+
+        skip(11 days);
+
+        vm.expectRevert();
+        vm.prank(owner);
+        yardFee.queueFeeChange(_fee);
+
+        assertTrue(yardFee.getFee() == FIFTY_CENTS);
     }
 }
