@@ -24,6 +24,15 @@ contract YardFeeTest is Test {
         assertTrue(yardFee.getFee() == fee);
     }
 
+    /**
+    * Foundry claims that the tests for YardFee covers 93.33% of statements and
+    * 83.33% of branches. Because line 89 of the YardFee in the `_updateFee()`
+    * function is not tested. However, the only way to test that line is by deploying
+    * with an invalid fee, which this test below tests for and passes.
+    *
+    * `queueFeeChange()` cannot queue an un-settable fee which catches this early allowing
+    * `_updateFee()` to pass the checks when updating a fee set by `queueFeeChange()`.
+    */
     function testWrongSetup(uint256 _fee) public {
         vm.assume((_fee != TEN_CENTS) && (_fee != THIRTY_CENTS) && (_fee != FIFTY_CENTS));
         vm.prank(owner);
