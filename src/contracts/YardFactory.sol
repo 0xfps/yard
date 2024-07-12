@@ -115,13 +115,13 @@ contract YardFactory is IERC721Receiver, IYardFactory, Ownable2Step {
                 )
             );
 
+            YardNFTWrapper(YARD_WRAPPER).addPair(pair);
             _addLiquidityToPair(nftA, idsA, nftB, idsB, _pairOwner, pair, _to);
 
             pairs[address(nftA)][address(nftB)] = pair;
             pairs[address(nftB)][address(nftA)] = pair;
             ++poolCount;
 
-            YardNFTWrapper(YARD_WRAPPER).addPair(pair);
             emit PairCreated(nftA, nftB, pair);
         }
     }
