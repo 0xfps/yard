@@ -86,7 +86,7 @@ contract YardFactoryCreatePairTest is YardFactoryTest {
         );
     }
 
-    function testCreatePairForWithEmptyArray() public completeSetup {
+    function testCreatePairWithEmptyArray() public completeSetup {
         address newPair;
         uint256[] memory testNFTAs = new uint256[] (0);
         uint256[] memory testNFTBs = new uint256[] (testNFTB.getMintedTokensArray().length);
@@ -111,7 +111,7 @@ contract YardFactoryCreatePairTest is YardFactoryTest {
         );
     }
 
-    function testCreatePairForWithUnmatchedArrays() public completeSetup {
+    function testCreatePairWithUnmatchedArrays() public completeSetup {
         address newPair;
         uint256[] memory testNFTAs = new uint256[] (1);
         uint256[] memory testNFTBs = new uint256[] (testNFTB.getMintedTokensArray().length);
