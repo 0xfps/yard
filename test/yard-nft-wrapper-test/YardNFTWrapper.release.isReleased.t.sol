@@ -24,7 +24,9 @@ contract YardNFTWrapperReleaseIsReleasedTest is YardNFTWrapperTokenURITest {
 
         assertFalse(isReleased);
 
+        vm.prank(pair);
         yardNFTWrapper.release(wrappedID);
+
         isReleased = yardNFTWrapper.isReleased(wrappedID);
         assertTrue(isReleased);
     }
