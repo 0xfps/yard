@@ -12,11 +12,13 @@ abstract contract Addresses is Test {
     address public chris = vm.addr(0xc);
     address public dick = vm.addr(0xc);
     address public finn = vm.addr(0xf);
+    address public pairOwner = vm.addr(0xaa);
 
     address public factory = vm.addr(uint256(bytes32(bytes("factory"))));
     address public pair = vm.addr(uint256(bytes32(bytes("pair"))));
     address public router = vm.addr(uint256(bytes32(bytes("router"))));
 
+    address public randomAddress = vm.addr(uint256(block.timestamp));
     address public zero = address(0);
 
     string public rpc = "https://ethereum-rpc.publicnode.com";
@@ -25,4 +27,13 @@ abstract contract Addresses is Test {
     uint256 public validId = 8000;
     uint256 public invalidID = 3305;
     uint256[] public validCryptoPunkIDs = [9721, 4701, 4806, 8437, 2242];
+
+    address public pudgyPenguins = 0xBd3531dA5CF5857e7CfAA92426877b022e612cf8;
+    uint256 public validPudgyPenguinsID = 2356;
+    uint256 public invalidPudgyPenguinsId = 8889;
+    uint256[] public validPudgyPenguinsIDs = [920, 8109, 5447, 3066, 4884];
+
+    uint32 internal constant TEN_CENTS = 1e5;
+    uint32 internal constant THIRTY_CENTS = 3e5;
+    uint32 internal constant FIFTY_CENTS = 5e5;
 }

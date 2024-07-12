@@ -17,7 +17,8 @@ import { YardFeeRange } from "./utils/YardFeeRange.sol";
 * @title    YardRouter
 * @author   fps (@0xfps).
 * @dev      YardRouter, this contract is the interaction center for Yard. Interactions
-*           between pools are done from the Router.
+*           between pools are done from the Router. Creation of new pools is also done
+*           from here.
 *
 *           To swap between two pools, a user passed a `path`. A `path` is an array of
 *           NFT addresses that are paired in twos recursively, meaning that, for a path
@@ -260,8 +261,8 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
         if (!feeIsSettable(fee)) revert("YARD: FEE_NOT_SETTABLE_CHOOSE_EITHER_0.1_0.3_0.5_*1E6");
 
         for (uint256 i; i < idsA.length; i++) {
-            _transferNFT(nftA, idsA[i], address(this), address(FACTORY));
-            _transferNFT(nftB, idsB[i], address(this), address(FACTORY));
+            _transferNFT(nftA, idsA[i], msg.sender, address(FACTORY));
+            _transferNFT(nftB, idsB[i], msg.sender, address(FACTORY));
         }
 
         pair = FACTORY.createPair(
