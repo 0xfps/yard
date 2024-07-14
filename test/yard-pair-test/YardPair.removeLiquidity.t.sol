@@ -6,10 +6,10 @@ import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Rec
 
 import "./YardPair.t.sol";
 
-contract YardPairRemoveLiquidityTest is YardPairTest {
-    uint256 nftID = 5;
-    uint256 finnNFTID = 33;
-    uint256 wId;
+contract YardPairRemoveLiquidityTest is YardPairTest, IERC721Receiver {
+    uint256 internal nftID = 5;
+    uint256 internal finnNFTID = 33;
+    uint256 internal wId;
 
     modifier sendNFTFirst() {
         vm.prank(alice);
@@ -131,7 +131,8 @@ contract YardPairRemoveLiquidityTest is YardPairTest {
         );
     }
 
-    function testRemoveLiquidityForNFTStillInPool() public sendNFTFirst addLiquiditySecond skipTimeThird {
+    function testRemoveLiquidityForNFTStillInPool(address receivers) public sendNFTFirst addLiquiditySecond skipTimeThird {
+        vm.assume((receivers != zero) && (receivers.code.length == 0));
         assertTrue(IERC721(testNFTA).ownerOf(nftID) == address(yardPair));
 
         vm.prank(address(yardRouter));
@@ -140,11 +141,11 @@ contract YardPairRemoveLiquidityTest is YardPairTest {
             nftID,
             wId,
             alice,
-            bob
+            receivers
         );
 
         assertTrue(idOut == nftID);
-        assertTrue(IERC721(testNFTA).ownerOf(nftID) == bob);
+        assertTrue(IERC721(testNFTA).ownerOf(nftID) == receivers);
 
         (uint256 aSupply, uint256 bSupply) = yardPair.getAllReserves();
         (uint256 supplyA, uint256[] memory supplyAArr) = yardPair.getReservesFor(IERC721(testNFTA));
@@ -198,5 +199,35 @@ contract YardPairRemoveLiquidityTest is YardPairTest {
 
         assertTrue(supplyB == 1);
         assertTrue(supplyBArr.length == 1);
+    }
+
+    function testRemoveLiquidityReentrancy() public sendNFTFirst addLiquiditySecond skipTimeThird {
+        vm.prank(address(yardRouter));
+        yardPair.removeLiquidity(
+            IERC721(testNFTA),
+            nftID,
+            wId,
+            alice,
+            address(this)
+        );
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) public returns (bytes4) {
+        vm.prank(address(yardRouter));
+        vm.expectRevert();
+        yardPair.removeLiquidity(
+            IERC721(testNFTA),
+            nftID,
+            wId,
+            alice,
+            address(this)
+        );
+
+        return IERC721Receiver.onERC721Received.selector;
     }
 }

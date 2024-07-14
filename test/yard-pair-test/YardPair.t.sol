@@ -31,7 +31,7 @@ contract YardPairTest is Addresses {
         yardRouter = new YardRouter(address(feeToken), address(yardNFTWrapper));
 
         feeToken.mint(finn, 500e6);
-        feeToken.mint(alice, 500e6);
+//        feeToken.mint(alice, 500e6);
 
         yardFactory.setWrapper(address(yardNFTWrapper));
         yardFactory.setRouter(address(yardRouter));
