@@ -68,11 +68,14 @@ contract YardRouterSwapBatchNFTsForExactNFTsTest is YardRouterTest {
         IERC721[] memory path = _getTwoPaths();
 
         vm.prank(chris);
-        yardRouter.swapBatchNFTsForExactNFTs(
+        uint256[] memory outs = yardRouter.swapBatchNFTsForExactNFTs(
             path,
             idsIn,
             idsOut,
             receivers
         );
+
+        assertTrue(outs.length == idsIn.length);
+        assertTrue(outs.length == idsOut.length);
     }
 }
