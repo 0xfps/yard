@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import { IYardFee } from "./interfaces/IYardFee.sol";
 import { IYardFactory } from "./interfaces/IYardFactory.sol";
 import { IYardPair } from "./interfaces/IYardPair.sol";
 import { IYardRouter } from "./interfaces/IYardRouter.sol";
@@ -353,12 +355,12 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
                 if (!pairExists) revert("YARD: PAIR_INEXISTENT");
 
                 _transferNFT(path[i], idsOut[i], address(this), pair);
+                _payFees(msg.sender, pair);
                 idOut = IYardPair(pair).swap(
                     path[i],
                     idsOut[i],
                     path[i + 1],
                     idsOut[i + 1],
-                    msg.sender,
                     address(this)
                 );
 
@@ -600,13 +602,13 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
         address to
     ) internal returns (uint256 _idOut) {
         _transferNFT(nftIn, idIn, msg.sender, pair);
+        _payFees(msg.sender, pair);
 
         _idOut = IYardPair(pair).swap(
             nftIn,
             idIn,
             nftOut,
             idOut,
-            msg.sender,
             to
         );
 
@@ -655,6 +657,16 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
     */
     function _transferNFT(IERC721 nft, uint256 id, address from, address to) internal {
         nft.safeTransferFrom(from, to, id, "");
+    }
+
+    /**
+    * @notice   Pay fees to avoid approving different Pair addresses.
+    *
+    * @param    payer   Address making payments.
+    * @param    pair    Pair address receiving fee.
+    */
+    function _payFees(address payer, address pair) internal {
+        IERC20(FEE_TOKEN).transferFrom(payer, pair, IYardFee(pair).getFee());
     }
 
     /// @dev    OpenZeppelin requirement for NFT receptions.
