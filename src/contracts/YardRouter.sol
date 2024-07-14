@@ -411,7 +411,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
 
         _idsOut = new uint256[](idsIn.length);
 
-        for (uint256 i; i < idsIn.length - 1; i++) {
+        for (uint256 i; i < idsIn.length; i++) {
             _idsOut[i] = swapNFTForExactNFT(path, idsIn[i], idsOut[i], to);
         }
 
