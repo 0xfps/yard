@@ -6,7 +6,7 @@ import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./YardPair.t.sol";
 
 contract YardPairAddLiquidityTest is YardPairTest {
-    uint256 nftID = 5;
+    uint256 internal nftID = 5;
 
     modifier sendNFTFirst() {
         vm.prank(alice);

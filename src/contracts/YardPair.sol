@@ -437,7 +437,7 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         uint256 numerator = lpShares * totalRewards;
         uint256 denominator = totalSupply;
 
-        return (numerator / denominator) - lpRewardAmountClaimed[lpProvider];
+        return totalSupply == 0 ? 0 : (numerator / denominator) - lpRewardAmountClaimed[lpProvider];
     }
 
     /**
@@ -457,6 +457,6 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         uint256 numerator = lpShares * totalRewards;
         uint256 denominator = totalSupply;
 
-        return (numerator / denominator);
+        return totalSupply == 0 ? 0 : (numerator / denominator);
     }
 }
