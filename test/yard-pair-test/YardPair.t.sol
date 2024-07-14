@@ -30,6 +30,9 @@ contract YardPairTest is Addresses {
         feeToken = new FakeTestERC20();
         yardRouter = new YardRouter(address(feeToken), address(yardNFTWrapper));
 
+        feeToken.mint(finn, 500e6);
+        feeToken.mint(alice, 500e6);
+
         yardFactory.setWrapper(address(yardNFTWrapper));
         yardFactory.setRouter(address(yardRouter));
 
@@ -54,6 +57,9 @@ contract YardPairTest is Addresses {
         );
 
         vm.stopPrank();
+
+        vm.prank(address(yardFactory));
+        yardNFTWrapper.addPair(address(yardPair));
     }
 
     function testSetUp() public {

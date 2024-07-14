@@ -250,13 +250,12 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
 
     /**
     * @notice   Takes in nftIn, idIn and gives out nftOut, idOut. Charges fees
-    *           and updates pool as intended.
+    *           and updates pool as intended. Payments are handled on the Router.
     *
     * @param    nftIn   Address of NFT swapping in, one of the two in the pair.
     * @param    idIn    ID of NFT swapping in.
     * @param    nftOut  Address of NFT swapping out, one of the two in the pair.
     * @param    idOut   ID of NFT swapping out.
-    * @param    payer   Address to pay fees for swap.
     * @param    to      Address to receive NFT.
     */
     function swap(
@@ -264,7 +263,6 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         uint256 idIn,
         IERC721 nftOut,
         uint256 idOut,
-        address payer,
         address to
     )
         external
@@ -280,9 +278,6 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
         if (!inPool[nftOut][idOut]) revert("YARD: NFT_NOT_IN_POOL");
         if (IERC721(nftOut).ownerOf(idOut) != address(this)) revert("YARD: NFT_OUT_NOT_OWNED_BY_POOL");
         if (to == address(0)) revert("YARD: ZERO_ADDRESS");
-
-        /// @notice Address swapping pays fees.
-        feeToken.transferFrom(payer, address(this), swapFee);
 
         _balancePoolReserves(nftOut, idOut);
         _updatePoolReserves(nftIn, idIn);
