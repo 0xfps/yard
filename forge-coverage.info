@@ -1,18 +1,5 @@
 Compiling 96 files with 0.8.20
-Solc 0.8.20 finished in 4.24s
-Compiler run [32msuccessful![0m
-Analysing contracts...
-Running tests...
-[2m2024-07-14T22:09:38.515716Z[0m [31mERROR[0m [2msharedbackend[0m[2m:[0m Failed to send/recv `basic` [3merr[0m[2m=[0mfailed to get account for 0x0000000000000000000000000000000000003F0d: Max retries exceeded [3maddress[0m[2m=[0m0x0000000000000000000000000000000000003F0d
-[2m2024-07-14T22:09:38.519645Z[0m [31mERROR[0m [2msharedbackend[0m[2m:[0m Failed to send/recv `basic` [3merr[0m[2m=[0mfailed to get account for 0x0000000000000000000000000000000000003327: Max retries exceeded [3maddress[0m[2m=[0m0x0000000000000000000000000000000000003327
-[2m2024-07-14T22:09:38.519698Z[0m [31mERROR[0m [2msharedbackend[0m[2m:[0m Failed to send/recv `basic` [3merr[0m[2m=[0mfailed to get account for 0x00000000000000000000000000000000000048E6: Max retries exceeded [3maddress[0m[2m=[0m0x00000000000000000000000000000000000048E6
-[2m2024-07-14T22:09:38.519673Z[0m [31mERROR[0m [2msharedbackend[0m[2m:[0m Failed to send/recv `basic` [3merr[0m[2m=[0mfailed to get account for 0x00000000000000000000000000000000000048E6: Max retries exceeded [3maddress[0m[2m=[0m0x00000000000000000000000000000000000048E6
-[2m2024-07-14T22:09:38.521532Z[0m [31mERROR[0m [2msharedbackend[0m[2m:[0m Failed to send/recv `basic` [3merr[0m[2m=[0mfailed to get account for 0x0000000000000000000000000000000000004f18: Max retries exceeded [3maddress[0m[2m=[0m0x0000000000000000000000000000000000004f18
-[2m2024-07-14T22:09:38.522325Z[0m [31mERROR[0m [2msharedbackend[0m[2m:[0m Failed to send/recv `basic` [3merr[0m[2m=[0mfailed to get account for 0x00000000000000000000000000000000000035Ed: Max retries exceeded [3maddress[0m[2m=[0m0x00000000000000000000000000000000000035Ed
-[2m2024-07-14T22:09:38.524868Z[0m [31mERROR[0m [2msharedbackend[0m[2m:[0m Failed to send/recv `basic` [3merr[0m[2m=[0mfailed to get account for 0x000000000000000000000000000000000000404D: Max retries exceeded [3maddress[0m[2m=[0m0x000000000000000000000000000000000000404D
-[2m2024-07-14T22:09:38.524872Z[0m [31mERROR[0m [2msharedbackend[0m[2m:[0m Failed to send/recv `basic` [3merr[0m[2m=[0mfailed to get account for 0x000000000000000000000000000000000000404D: Max retries exceeded [3maddress[0m[2m=[0m0x000000000000000000000000000000000000404D
-Compiling 96 files with 0.8.20
-Solc 0.8.20 finished in 4.36s
+Solc 0.8.20 finished in 4.35s
 Compiler run [32msuccessful![0m
 Analysing contracts...
 Running tests...
