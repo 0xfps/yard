@@ -42,12 +42,23 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
     /// @dev Reentrancy guard.
     bool internal isLocked;
 
+    /// @dev Smaller function reentrancy guard.
+    bool internal minorLocked;
+
     /// @dev Reentrancy guard.
     modifier lock() {
         if (isLocked) revert("YARD: TRANSACTION_LOCKED");
         isLocked = true;
         _;
         isLocked = false;
+    }
+
+    /// @dev Reentrancy guard.
+    modifier minorLock() {
+        if (minorLocked) revert("YARD: TRANSACTION_LOCKED");
+        minorLocked = true;
+        _;
+        minorLocked = false;
     }
 
     constructor(address feeToken, address yardWrapper) {
@@ -215,7 +226,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
         if (idsOut.length == 0) revert("YARD: ZERO_LENGTH");
         if (idsOut.length != wIds.length) revert("YARD: LENGTH_MISMATCH");
 
-        _idsOut = new uint256[](_idsOut.length);
+        _idsOut = new uint256[](idsOut.length);
 
         for (uint256 i; i < idsOut.length; i++) {
             _idsOut[i] = _removeLiquidity(
@@ -300,7 +311,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
         uint256 idIn,
         uint256 idOut,
         address to
-    ) public lock returns (uint256 _idOut) {
+    ) public minorLock returns (uint256 _idOut) {
         if (path.length != 2) revert("YARD: PATH_MUST_BE_TWO");
 
         /// @dev Direct swap.
@@ -354,13 +365,13 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
                 (bool pairExists, address pair) = _pairExists(_path[0], _path[1]);
                 if (!pairExists) revert("YARD: PAIR_INEXISTENT");
 
-                _transferNFT(path[i], idsOut[i], address(this), pair);
+                _transferNFT(path[i], idsOut[i - 1], address(this), pair);
                 _payFees(msg.sender, pair);
                 idOut = IYardPair(pair).swap(
                     path[i],
-                    idsOut[i],
+                    idsOut[i - 1],
                     path[i + 1],
-                    idsOut[i + 1],
+                    idsOut[i],
                     address(this)
                 );
 
@@ -450,8 +461,8 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
 
         idsOut = new uint256[](idsIn.length);
 
-        for (uint256 i; i < idsIn.length - 1; i++) {
-            uint256 idOut = precalculateOutputNFT(path[0], path[1], path[1]);
+        for (uint256 i; i < idsIn.length; i++) {
+            uint256 idOut = precalculateOutputNFT(path[0], path[1], path[0]);
             idsOut[i] = swapNFTForExactNFT(path, idsIn[i], idOut, to);
         }
     }
