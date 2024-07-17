@@ -101,11 +101,4 @@ contract YardPairClaimRewardsTest is YardPairTest {
         assertTrue(balanceAfterChris != 0);
         assertTrue(yardPair.totalAmountClaimed() >= prevTotalAmountClaimed);
     }
-
-//    function testCalculateRewardsForAllBeforeProvision(address providers) public {
-//        uint256 rewards = yardPair.calculateRewards(providers);
-//        assertTrue(rewards == 0);
-//    }
-//
-//    function
 }
