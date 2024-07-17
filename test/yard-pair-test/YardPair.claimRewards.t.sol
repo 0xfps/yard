@@ -132,7 +132,7 @@ contract YardPairClaimRewardsTest is YardPairTest {
 
         yardPair.claimRewards(alice);
         uint256 balanceLaterAlice = feeToken.balanceOf(alice);
-        
+
         assertTrue(balanceLaterAlice == balanceAfterAlice);
     }
 }
