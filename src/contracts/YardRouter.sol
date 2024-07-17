@@ -271,7 +271,8 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
         if (idsA.length != idsB.length) revert ("YARD: LENGTH_MISMATCH");
         if (to == address(0)) revert("YARD: ZERO_TO_ADDRESS");
 
-        if (!feeIsSettable(fee)) revert("YARD: FEE_NOT_SETTABLE_CHOOSE_EITHER_0.1_0.3_0.5_*1E6");
+        uint256 selectedFee = fee == 0 ? DEFAULT_FEE : fee;
+        if (!feeIsSettable(selectedFee)) revert("YARD: FEE_NOT_SETTABLE_CHOOSE_EITHER_0.1_0.3_0.5_*1E6");
 
         for (uint256 i; i < idsA.length; i++) {
             _transferNFT(nftA, idsA[i], msg.sender, address(FACTORY));
@@ -284,7 +285,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
             nftB,
             idsB,
             msg.sender,
-            fee,
+            selectedFee,
             FEE_TOKEN,
             YARD_WRAPPER,
             to
