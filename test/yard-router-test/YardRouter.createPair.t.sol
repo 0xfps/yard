@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IYardFee } from "../../src/contracts/interfaces/IYardFee.sol";
 
 import "./YardRouter.t.sol";
 
@@ -85,7 +86,7 @@ contract YardRouterCreatePairTest is YardRouterTest {
     }
 
     function testCreatePairWithUnsettableFee(uint256 fee) public completeSetup {
-        vm.assume((fee != TEN_CENTS) && (fee != THIRTY_CENTS) && (fee != FIFTY_CENTS));
+        vm.assume((fee > 0) && (fee != TEN_CENTS) && (fee != THIRTY_CENTS) && (fee != FIFTY_CENTS));
         uint256[] memory ids = _getIDsFor(chris);
 
         vm.prank(chris);
@@ -113,5 +114,20 @@ contract YardRouterCreatePairTest is YardRouterTest {
             FIFTY_CENTS,
             dick
         );
+    }
+
+    function testCreateProperPairWithZeroFee() public completeSetup {
+        uint256[] memory ids = _getIDsFor(chris);
+        vm.prank(chris);
+        yardRouter.createPair(
+            IERC721(testNFTA),
+            ids,
+            IERC721(testNFTB),
+            ids,
+            0,
+            dick
+        );
+
+        assertTrue(YardPair(yardRouter.getPair(IERC721(testNFTA), IERC721(testNFTB))).getFee() == TEN_CENTS);
     }
 }
