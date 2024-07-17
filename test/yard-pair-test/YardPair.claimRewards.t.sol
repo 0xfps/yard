@@ -97,8 +97,42 @@ contract YardPairClaimRewardsTest is YardPairTest {
         uint256 balanceAfterAlice = feeToken.balanceOf(alice);
         uint256 balanceAfterChris = feeToken.balanceOf(chris);
 
+        yardPair.claimRewards(alice);
+        uint256 balanceLaterAlice = feeToken.balanceOf(alice);
+
         assertTrue(balanceAfterAlice >= balanceBefore);
         assertTrue(balanceAfterChris != 0);
         assertTrue(yardPair.totalAmountClaimed() >= prevTotalAmountClaimed);
+        assertTrue(balanceLaterAlice == balanceAfterAlice);
+    }
+
+    function testClaimRewardsOnLiquidityRemoval() public sendNFTFirst addLiquiditySecond skipTimeThird sendSomeTokensFourth {
+        uint256 balanceBefore = feeToken.balanceOf(alice);
+
+        vm.prank(address(yardRouter));
+        yardPair.removeLiquidity(
+            IERC721(testNFTA),
+            nftID,
+            wId,
+            alice,
+            alice
+        );
+
+        vm.prank(address(yardRouter));
+        yardPair.removeLiquidity(
+            IERC721(testNFTA),
+            secondNFTID,
+            secondWId,
+            alice,
+            alice
+        );
+
+        uint256 balanceAfterAlice = feeToken.balanceOf(alice);
+        assertTrue(balanceAfterAlice >= balanceBefore);
+
+        yardPair.claimRewards(alice);
+        uint256 balanceLaterAlice = feeToken.balanceOf(alice);
+        
+        assertTrue(balanceLaterAlice == balanceAfterAlice);
     }
 }
