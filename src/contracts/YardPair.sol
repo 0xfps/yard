@@ -44,9 +44,9 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
     address internal immutable YARD_WRAPPER;
 
     /// @dev One NFT in the pool.
-    IERC721 internal nft0;
+    IERC721 public nft0;
     /// @dev Second NFT in pool.
-    IERC721 internal nft1;
+    IERC721 public nft1;
 
     /// @dev Number of NFT0 in pool.
     uint256 internal nft0Supply;
@@ -77,14 +77,14 @@ contract YardPair is IERC721Receiver, IYardPair, YardFee {
 
     /// @dev    A mapping to store how many NFTs a provider has deposited that have not
     ///         been removed by `removeLiquidity`.
-    mapping(address provider => uint256 count) internal deposited;
+    mapping(address provider => uint256 count) public deposited;
     /// @dev A mapping to store the total number of all the NFTs a provider has deposited in the poo.
     mapping(address provider => uint256 count) internal totalDeposited;
 
     /// @dev A mapping to store how much a liquidity provider has claimed.
-    mapping(address provider => uint256 amount) internal lpRewardAmountClaimed;
+    mapping(address provider => uint256 amount) public lpRewardAmountClaimed;
     /// @dev A mapping to store the last block timestamp a particular provider added liquidity.
-    mapping(address provider => uint256 time) internal lastLPTime;
+    mapping(address provider => uint256 time) public lastLPTime;
     /// @dev A mapping to store addresses that provided liquidity with which NFTs and which IDs.
     mapping(IERC721 nft => mapping(uint256 id => address provider)) internal nftLPProviders;
 
