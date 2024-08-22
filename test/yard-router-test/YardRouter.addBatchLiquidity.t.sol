@@ -25,6 +25,7 @@ contract YardRouterAddBatchLiquidityTest is YardRouterTest {
         _createPair();
 
         uint256[] memory ids = _getIDsFor(chris);
+        assertTrue(yardRouter.getLiquidityProvidedPairs(chris).length == 0);
 
         vm.prank(chris);
         uint256[] memory wIds = yardRouter.addBatchLiquidity(
@@ -42,5 +43,9 @@ contract YardRouterAddBatchLiquidityTest is YardRouterTest {
             assertTrue(yardNFTWrapper.ownerOf(wIds[i]) == dick);
             assertFalse(yardNFTWrapper.isReleased(wIds[i]));
         }
+
+        assertTrue(yardRouter.getLiquidityProvidedPairs(chris).length != 0);
+        // Should be 1 since all liquidity was sent to one pair.
+        assertTrue(yardRouter.getLiquidityProvidedPairs(chris).length == 1);
     }
 }
