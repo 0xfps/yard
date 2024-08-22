@@ -128,6 +128,9 @@ interface IYardRouter {
     /// @dev Return the address of the `YardPair` contract containing `nftA` and `nftB`.
     function getPair(IERC721 nftA, IERC721 nftB) external view returns (address pair);
 
+    /// @dev Returns an array of pair addresses that `lpProvider` has provided liquidity to.
+    function getLiquidityProvidedPairs(address lpProvider) external view returns (address[] memory);
+
     /// @dev Calculate and return rewards claimable by `lpProvider`.
     function getRewards(
         IERC721 nftA,
