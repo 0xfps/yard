@@ -50,6 +50,7 @@ contract YardRouterAddLiquidityTest is YardRouterTest {
         vm.assume((receivers.code.length == 0) && (receivers != zero));
         _createPair();
 
+        assertTrue(yardRouter.getLiquidityProvidedPairs(chris).length == 0);
         uint8 idAdded = 16;
         vm.prank(chris);
         uint256 wId = yardRouter.addLiquidity(
@@ -62,5 +63,7 @@ contract YardRouterAddLiquidityTest is YardRouterTest {
 
         assertTrue(testNFTA.ownerOf(idAdded) == address(yardRouter.getPair(IERC721(testNFTA), IERC721(testNFTB))));
         assertTrue(yardNFTWrapper.ownerOf(wId) == receivers);
+        assertTrue(yardRouter.getLiquidityProvidedPairs(chris).length != 0);
+        assertTrue(yardRouter.getLiquidityProvidedPairs(chris).length == 1);
     }
 }

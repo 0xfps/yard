@@ -38,6 +38,11 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
     address public immutable YARD_WRAPPER;
     /// @dev YardFactory interface instance.
     IYardFactory public FACTORY;
+    /// @dev Mapping to show pairs that `lpProvider` has provided liquidity to.
+    mapping(address lpProvider => address[] pairs) public liquidityProvidedPairs;
+    /// @dev    Mapping to control whether or not a pair has been added to the
+    ///         `liquidityProvidedPairs` array.
+    mapping(address lpProvider => mapping(address pair => bool isAdded)) internal isRecorded;
 
     /// @dev Reentrancy guard.
     bool internal isLocked;
@@ -81,8 +86,9 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
     }
 
     /**
-    * @dev      Return the address of a pair of NFTs as stored by the factory.
-    * @notice   Factory doesn't have checks for the address(0) case in the getPair()
+    * @notice   Return the address of a pair of NFTs as stored by the factory.
+    *
+    * @dev      Factory doesn't have checks for the address(0) case in the getPair()
     *           function. It is recommended that any Router function with calls to the
     *           getPair() function add an extra address(0) check before proceeding.
     *
@@ -94,6 +100,20 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
     function getPair(IERC721 nftA, IERC721 nftB) public view returns (address pair) {
         if (FACTORY.getPair(nftA, nftB) == address(0)) revert("YARD: PAIR_INEXISTENT");
         pair = FACTORY.getPair(nftA, nftB);
+    }
+
+    /**
+    * @notice   Return an array of all pairs that `lpProvider` has provided liquidity to.
+    *
+    * @dev      Provision of liquidity can be of two types, (a), the creation of a pool,
+    *           (b), the manual addition of liquidity.
+    *
+    * @param    lpProvider          Address of user.
+    *
+    * @return   address[] memory    Array of pairs that `lpProvider` has provided liquidity to.
+    */
+    function getLiquidityProvidedPairs(address lpProvider) external view returns (address[] memory) {
+        return liquidityProvidedPairs[lpProvider];
     }
 
     /**
@@ -290,6 +310,8 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
             YARD_WRAPPER,
             to
         );
+
+        _recordLiquidityProvidedPair(msg.sender, pair);
     }
 
     /**
@@ -574,6 +596,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
             to
         );
 
+        _recordLiquidityProvidedPair(msg.sender, pair);
         emit LiquidityAdded(nftIn, idIn);
     }
 
@@ -679,6 +702,24 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
     */
     function _payFees(address payer, address pair) internal {
         IERC20(FEE_TOKEN).transferFrom(payer, pair, IYardFee(pair).getFee());
+    }
+
+    /**
+    * @notice   Add the address of the pair to the `liquidityProvidedPairs` array
+    *           and set the `recorded` value to `true` if the `pair` has not been
+    *           recorded for `lpProvider`.
+    *
+    * @dev      When a user removes liquidity up to the point where their liquidity
+    *           in a pair is depleted, this doesn't remove the pair from the array.
+    *
+    * @param    lpProvider Address of user.
+    * @param    pair       Address of pair.
+    */
+    function _recordLiquidityProvidedPair(address lpProvider, address pair) internal {
+        if (!isRecorded[lpProvider][pair]) {
+            isRecorded[lpProvider][pair] = true;
+            liquidityProvidedPairs[lpProvider].push(pair);
+        }
     }
 
     /// @dev    OpenZeppelin requirement for NFT receptions.
