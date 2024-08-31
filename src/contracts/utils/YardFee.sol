@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import { IYardFee } from "../interfaces/IYardFee.sol";
-import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { YardFeeRange } from "./YardFeeRange.sol";
 
@@ -32,7 +32,7 @@ contract YardFee is IYardFee, YardFeeRange, Ownable2Step {
     event FeeUpdated(uint256 _oldFee, uint256 _newFee);
 
     constructor(address _owner_, uint256 _fee) {
-        Ownable._transferOwnership(_owner_);
+        Ownable2Step._transferOwnership(_owner_);
         _updateFee(_fee);
     }
 
