@@ -11,7 +11,7 @@ import { IYardRouter } from "./interfaces/IYardRouter.sol";
 
 import { Math } from "./libraries/Math.sol";
 
-import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { YardFeeRange } from "./utils/YardFeeRange.sol";
 
@@ -82,7 +82,7 @@ contract YardRouter is IERC721Receiver, IYardRouter, YardFeeRange, Ownable2Step 
     function setFactory(address factory) public onlyOwner {
         if (factory == address(0)) revert("YARD: FACTORY_IS_ZERO_ADDRESS");
         FACTORY = IYardFactory(factory);
-        Ownable._transferOwnership(address(0));
+        Ownable2Step._transferOwnership(address(0));
     }
 
     /**

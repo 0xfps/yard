@@ -6,7 +6,7 @@ import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Rec
 import { IYardFactory } from "./interfaces/IYardFactory.sol";
 import { IYardPair } from "./interfaces/IYardPair.sol";
 
-import { Ownable, Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { YardNFTWrapper } from "./utils/YardNFTWrapper.sol";
 import { YardPair } from "./YardPair.sol";
@@ -45,7 +45,7 @@ contract YardFactory is IERC721Receiver, IYardFactory, Ownable2Step {
     function setRouter(address router) public onlyOwner {
         if (router == address(0)) revert("YARD: ROUTER_IS_ZERO_ADDRESS");
         ROUTER = router;
-        Ownable._transferOwnership(address(0));
+        Ownable2Step._transferOwnership(address(0));
     }
 
     /**
