@@ -22,5 +22,11 @@
         "feeToken": "0xB59B1fF0a14c1663c3Be8d97D0768BF9ff0D6B30",
         "factory": "0xC6Aa11722a75702dCa11a63BBC064B2Dd5F925A4",
         "router": "0x7EEC84B4870Daa7ebF12fcAFBC138a1Bf260bF3a"
+    },
+    "sepolia": {
+        "wrapper": "0xFF39F6bcc00Fa0768FF5B5AE901fFf967bbEEe1c",
+        "feeToken": "0x2C95301AFd8b1BE3e71D5DBEa79238408c1a9c44",
+        "factory": "0xF1a9cAF4C4F574e2EEfD06C083F05120B60F5764",
+        "router": "0x0b908723183d5f4f7b7ED493B45824FbaC777b2D"
     }
 }
