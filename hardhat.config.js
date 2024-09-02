@@ -63,8 +63,7 @@ module.exports = {
       url: `https://sepolia.infura.io/v3/${INFURA_ID}`,
       chainId: 11155111,
       accounts: [PRIVATE_KEY],
-      allowUnlimitedContractSize: true,
-      gasPrice: 200000000
+      allowUnlimitedContractSize: true
     }
   }
 };
