@@ -122,8 +122,8 @@
       ]
     },
     "/Users/fps/Desktop/yard/src/contracts/utils/YardNFTWrapper.sol": {
-      "lastModificationDate": 1725270265790,
-      "contentHash": "679bf19523f3f744d03eedc63871d766",
+      "lastModificationDate": 1725272756167,
+      "contentHash": "3c264e32419a5c45176c0a0d16b81555",
       "sourceName": "src/contracts/utils/YardNFTWrapper.sol",
       "solcConfig": {
         "version": "0.8.24",
