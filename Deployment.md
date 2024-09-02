@@ -1,6 +1,7 @@
 # Deployment And Configuration Procedures
 
 It would be advisable to deploy all `YardRouter` to the same address across all chains.
+Well, it wasn't possible due to gas and testnet issues, so, whatever, I guess.
 
 1. Get `FEE_TOKEN` address.
 2. Deploy `YardNFTWrapper` contract.

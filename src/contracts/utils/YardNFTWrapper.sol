@@ -10,6 +10,7 @@ import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 /**
  * @title   YardNFTWrapper
  * @author  sagetony224 (@sagetony224).
+ * @author  fps (@0xfps). 
  * @dev     Yard NFT Wrapper contract.
  * @notice  The Yard NFT Wrapper has a singular function of wrapping NFTs
  *          by keeping their URI Metadata intact and minting an NFT with the same

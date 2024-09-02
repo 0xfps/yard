@@ -1,0 +1,8 @@
+{
+    "arbitrum": {
+        "wrapper": "0xF1a9cAF4C4F574e2EEfD06C083F05120B60F5764",
+        "feeToken": "0x41a959d9341AE5e632B7e23E3D8BC8c5BFd63524",
+        "factory": "0x0b908723183d5f4f7b7ED493B45824FbaC777b2D",
+        "router": "0x1D9aC3Ae02775AFEA9c42949394bDc9E9758BB9E"
+    }
+}
