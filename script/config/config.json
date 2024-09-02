@@ -16,5 +16,11 @@
         "feeToken": "0x3CC95c856c1B815Dda6AA3047D8d281e489Ed499",
         "factory": "0xa19455D0000A461D5087b8d0Fb70B6fFcFfB73F3",
         "router": "0x8B826e0167f0991f7257EBda8B37a0c2AAF7690E"
+    },
+    "scroll": {
+        "wrapper": "0x963b9cA0D98a56fBb3D67E5464E0EdeBc4725acd",
+        "feeToken": "0xB59B1fF0a14c1663c3Be8d97D0768BF9ff0D6B30",
+        "factory": "0xC6Aa11722a75702dCa11a63BBC064B2Dd5F925A4",
+        "router": "0x7EEC84B4870Daa7ebF12fcAFBC138a1Bf260bF3a"
     }
 }

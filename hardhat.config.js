@@ -54,16 +54,17 @@ module.exports = {
       allowUnlimitedContractSize: true,
     },
     scroll: {
-      url: "https://sepolia-rpc.scroll.io",
+      url: "https://scroll-public.scroll-testnet.quiknode.pro",
       chainId: 534351,
       accounts: [PRIVATE_KEY],
-      allowUnlimitedContractSize: true,
+      allowUnlimitedContractSize: true
     },
     sepolia: {
       url: `https://sepolia.infura.io/v3/${INFURA_ID}`,
       chainId: 11155111,
       accounts: [PRIVATE_KEY],
       allowUnlimitedContractSize: true,
+      gasPrice: 200000000
     }
   }
 };
