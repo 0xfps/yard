@@ -1,0 +1,1987 @@
+{
+    "factory": [
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "previousOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "newOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "OwnershipTransferStarted",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "previousOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "newOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "OwnershipTransferred",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "pair",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "PairCreated",
+            "anonymous": false
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "ROUTER",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "YARD_WRAPPER",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "acceptOwnership",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsA",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsB",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "_pairOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "_fee",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "_feeToken",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "_yardWrapper",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "_to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "createPair",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "pair",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "getPair",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "pair",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "",
+                    "type": "bytes",
+                    "baseType": "bytes",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "onERC721Received",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "bytes4",
+                    "baseType": "bytes4",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "pure",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "owner",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "pendingOwner",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "poolCount",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "renounceOwnership",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "router",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "setRouter",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "wrapper",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "setWrapper",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "newOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "transferOwnership",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        }
+    ],
+    "router": [
+        {
+            "type": "constructor",
+            "inputs": [
+                {
+                    "name": "feeToken",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "yardWrapper",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "nftIn",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsIn",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                }
+            ],
+            "name": "BatchLiquidityAdded",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "nftOut",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsOut",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                }
+            ],
+            "name": "BatchLiquidityRemoved",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "path",
+                    "type": "address[]",
+                    "baseType": "array",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "address",
+                        "baseType": "address",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "idsIn",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "idsOut",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                }
+            ],
+            "name": "BatchSwapped",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "nftIn",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idIn",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "LiquidityAdded",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "nftOut",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idOut",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "LiquidityRemoved",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "previousOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "newOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "OwnershipTransferStarted",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "previousOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "newOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "OwnershipTransferred",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "lpProvider",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "reward",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "RewardClaimed",
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "inputs": [
+                {
+                    "name": "nftIn",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idIn",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftOut",
+                    "type": "address",
+                    "baseType": "address",
+                    "indexed": true,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idOut",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "indexed": false,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "Swapped",
+            "anonymous": false
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "DEFAULT_FEE",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint32",
+                    "baseType": "uint32",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "FACTORY",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "FEE_TOKEN",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "YARD_WRAPPER",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "acceptOwnership",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftIn",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsIn",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "addBatchLiquidity",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "wIds",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftIn",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idIn",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "addLiquidity",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "wId",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsA",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsB",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "fee",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "createPair",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "pair",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "_fee",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "feeIsSettable",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "bool",
+                    "baseType": "bool",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "pure",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "lpProvider",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "getLiquidityProvidedPairs",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "address",
+                        "baseType": "address",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "getPair",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "pair",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "lpProvider",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "getRewards",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "lpProvider",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "liquidityProvidedPairs",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "pairs",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "",
+                    "type": "bytes",
+                    "baseType": "bytes",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "onERC721Received",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "bytes4",
+                    "baseType": "bytes4",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "pure",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "owner",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "pendingOwner",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftIn",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "precalculateOutputNFT",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "idOut",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftOut",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsOut",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "wIds",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "removeBatchLiquidity",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "_idsOut",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftOut",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idOut",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "wId",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "removeLiquidity",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "_idOut",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [],
+            "name": "renounceOwnership",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "factory",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "setFactory",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "path",
+                    "type": "address[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "address",
+                        "baseType": "address",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "idsIn",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "swapBatchNFTsForArbitraryNFTs",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "idsOut",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "path",
+                    "type": "address[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "address",
+                        "baseType": "address",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "idsIn",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "idsOut",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "swapBatchNFTsForExactNFTs",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "_idsOut",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "path",
+                    "type": "address[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "address",
+                        "baseType": "address",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "idIn",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idsOut",
+                    "type": "uint256[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "uint256",
+                        "baseType": "uint256",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "swapExactNFTsForExactNFTsAcrossPools",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "path",
+                    "type": "address[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "address",
+                        "baseType": "address",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "idIn",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "swapNFTForArbitraryNFT",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "idOut",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "path",
+                    "type": "address[]",
+                    "baseType": "array",
+                    "components": null,
+                    "arrayLength": -1,
+                    "arrayChildren": {
+                        "name": "",
+                        "type": "address",
+                        "baseType": "address",
+                        "components": null,
+                        "arrayLength": null,
+                        "arrayChildren": null
+                    }
+                },
+                {
+                    "name": "idIn",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "idOut",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "to",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "swapNFTForExactNFT",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "_idOut",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "takeRewards",
+            "constant": false,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "newOwner",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "transferOwnership",
+            "constant": false,
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "payable": false,
+            "gas": null
+        },
+        {
+            "type": "function",
+            "inputs": [
+                {
+                    "name": "nftA",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "nftB",
+                    "type": "address",
+                    "baseType": "address",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "name": "viewAllReserves",
+            "constant": true,
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                },
+                {
+                    "name": "",
+                    "type": "uint256",
+                    "baseType": "uint256",
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null
+                }
+            ],
+            "stateMutability": "view",
+            "payable": false,
+            "gas": null
+        }
+    ]
+}
