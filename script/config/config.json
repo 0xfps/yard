@@ -10,5 +10,11 @@
         "feeToken": "0xff34D590e9e709937a22F93cF53aaae3146ca0AF",
         "factory": "0xF397ec79E3d406b2a6A05367383bF413A15658b5",
         "router": "0x945476845e8Df94F5ACC994eC00A8cd5eeeD26Cf"
+    },
+    "bsc": {
+        "wrapper": "0xaa7D934eDe152E715460994D2d725f08D2b354dA",
+        "feeToken": "0x3CC95c856c1B815Dda6AA3047D8d281e489Ed499",
+        "factory": "0xa19455D0000A461D5087b8d0Fb70B6fFcFfB73F3",
+        "router": "0x8B826e0167f0991f7257EBda8B37a0c2AAF7690E"
     }
 }
