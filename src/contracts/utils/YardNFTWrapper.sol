@@ -10,10 +10,11 @@ import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 /**
  * @title   YardNFTWrapper
  * @author  sagetony224 (@sagetony224).
+ * @author  fps (@0xfps). 
  * @dev     Yard NFT Wrapper contract.
  * @notice  The Yard NFT Wrapper has a singular function of wrapping NFTs
  *          by keeping their URI Metadata intact and minting an NFT with the same
- *          URI to a specific addresses. NFTs minted to addresses are non-transferable
+ *          URI to a specific address. NFTs minted to addresses are non-transferable
  *          and non-approvable. This is because they represent proofs of liquidity provision
  *          in a particular pair contract. If the owner of a newly minted Yard wrapped NFT
  *          decides to remove liquidity, the underlying NFT that the wrapped entity represents

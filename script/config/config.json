@@ -1,0 +1,32 @@
+{
+    "arbitrum": {
+        "wrapper": "0xeC407AB9A1670c380CB08A19C3aB26adf47201fA",
+        "feeToken": "0x41a959d9341AE5e632B7e23E3D8BC8c5BFd63524",
+        "factory": "0x59DED2dc791996d847Fa301Fb74f8eb64A18256C",
+        "router": "0xD329810810F03D594E599a1303af9dDeD9736937"
+    },
+    "base": {
+        "wrapper": "0x1158B391EDdB816320a75709413A3D74985A139b",
+        "feeToken": "0xff34D590e9e709937a22F93cF53aaae3146ca0AF",
+        "factory": "0xF397ec79E3d406b2a6A05367383bF413A15658b5",
+        "router": "0x945476845e8Df94F5ACC994eC00A8cd5eeeD26Cf"
+    },
+    "bsc": {
+        "wrapper": "0xaa7D934eDe152E715460994D2d725f08D2b354dA",
+        "feeToken": "0x3CC95c856c1B815Dda6AA3047D8d281e489Ed499",
+        "factory": "0xa19455D0000A461D5087b8d0Fb70B6fFcFfB73F3",
+        "router": "0x8B826e0167f0991f7257EBda8B37a0c2AAF7690E"
+    },
+    "scroll": {
+        "wrapper": "0x963b9cA0D98a56fBb3D67E5464E0EdeBc4725acd",
+        "feeToken": "0xB59B1fF0a14c1663c3Be8d97D0768BF9ff0D6B30",
+        "factory": "0xC6Aa11722a75702dCa11a63BBC064B2Dd5F925A4",
+        "router": "0x7EEC84B4870Daa7ebF12fcAFBC138a1Bf260bF3a"
+    },
+    "sepolia": {
+        "wrapper": "0xFF39F6bcc00Fa0768FF5B5AE901fFf967bbEEe1c",
+        "feeToken": "0x2C95301AFd8b1BE3e71D5DBEa79238408c1a9c44",
+        "factory": "0xF1a9cAF4C4F574e2EEfD06C083F05120B60F5764",
+        "router": "0x0b908723183d5f4f7b7ED493B45824FbaC777b2D"
+    }
+}
