@@ -8,7 +8,7 @@ dotenv.config()
 
 const BLOCKS = 10
 const destinationDir = path.join(__dirname, "/config")
-const destination = path.join(__dirname, "/config/config.json")
+const destination = path.join(__dirname, "/config/deployments.json")
 
 if (!existsSync(destinationDir)) {
     mkdirSync(destinationDir);
