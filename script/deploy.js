@@ -1,6 +1,6 @@
 const { ethers, network, run } = require("hardhat")
 const dotenv = require("dotenv")
-const { appendFileSync, existsSync, readFileSync, closeSync, mkdirSync } = require("fs")
+const { existsSync, readFileSync, mkdirSync, writeFileSync } = require("fs")
 const path = require("path")
 const tokens = require("./json/tokens.json")
 
@@ -91,7 +91,7 @@ async function main() {
 
     // Write to file.
     try {
-        appendFileSync(destination, JSON.stringify(configObject))
+        writeFileSync(destination, JSON.stringify(configObject))
     } catch (e) {
         console.log(e)
     }
