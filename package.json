@@ -1,0 +1,39 @@
+{
+  "name": "yard",
+  "version": "0.0.1",
+  "description": "A liquidity pool for instant NFT swaps 🦋.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xfps/yard.git"
+  },
+  "keywords": [
+    "liquidity",
+    "nft",
+    "erc721",
+    "liquidity-pool",
+    "solidity",
+    "smart-contract",
+    "blockchain"
+  ],
+  "author": "0xfps",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/0xfps/yard/issues"
+  },
+  "homepage": "https://github.com/0xfps/yard#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-foundry": "^1.1.2",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
