@@ -24,9 +24,9 @@
         "router": "0x7EEC84B4870Daa7ebF12fcAFBC138a1Bf260bF3a"
     },
     "sepolia": {
-        "wrapper": "0xFF39F6bcc00Fa0768FF5B5AE901fFf967bbEEe1c",
+        "wrapper": "0xC26a99eCabEB74429A56b6fadAB6285E4ba6Ea08",
         "feeToken": "0x2C95301AFd8b1BE3e71D5DBEa79238408c1a9c44",
-        "factory": "0xF1a9cAF4C4F574e2EEfD06C083F05120B60F5764",
-        "router": "0x0b908723183d5f4f7b7ED493B45824FbaC777b2D"
+        "factory": "0x2c3353cA093B9Af3D2A71c52EC4932c30635FdDb",
+        "router": "0x7431FAbfB729a3580baac47c15801b56b6C9b55f"
     }
 }
