@@ -10,16 +10,24 @@ Test Licenses are `UNLICENSED`.
 ## To Run
 
 ### Clone Repo
-> `git clone https://github.com/0xfps/yard`
+```bash
+git clone https://github.com/0xfps/yard
+```
 
 ### Install
-> `forge install`
+```bash
+forge install
+```
 
 ### Build
-> `forge b`
+```bash
+forge b
+```
 
 ### Run Tests
-> `forge t`
+```bash
+forge t
+```
 
 ### Deploying
 If you wish to deploy this contract, follow the steps at [`Deployment.md`](./Deployment.md).
