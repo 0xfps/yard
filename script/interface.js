@@ -11,11 +11,12 @@ if (!existsSync(destinationDir)) {
 
 async function main() {
     let abis = existsSync(destination) ? JSON.parse(readFileSync(destination)) : {}
-    const [yardFactory, yardRouter] = [await ethers.getContractFactory("YardFactory"), await ethers.getContractFactory("YardRouter")]
+    const [yardFactory, yardPair, yardRouter] = [await ethers.getContractFactory("YardFactory"), await ethers.getContractFactory("YardPair"), await ethers.getContractFactory("YardRouter")]
 
     abis = {
         ...abis,
         factory: yardFactory.interface.fragments,
+        pair: yardPair.interface.fragments,
         router: yardRouter.interface.fragments
     }
 
